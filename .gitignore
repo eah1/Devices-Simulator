@@ -1,0 +1,19 @@
+# Editor files
+.idea/
+*.iml
+*.swp
+*.log
+
+# Mac
+.DS_Store
+
+# VS code
+.vscode
+
+# Files go
+vendor
+main
+profile.cov
+
+# Config local
+config.yaml
