@@ -1,0 +1,106 @@
+run:
+  tests: false
+  timeout: 5m
+  skip-dirs:
+    - app/services/mqtt-broker
+    - app/services/myc-frontend-v1
+linters-settings:
+#  lll:
+#    line-length: 140
+  funlen:
+    lines: 85
+  forbidigo:
+    # Forbid the following identifiers (list of regexp).
+    # Default: ["^(fmt\\.Print(|f|ln)|print|println)$"]
+    forbid:
+      - ^print.*$
+      - 'fmt\.Print.*'
+      # Optionally put comments at the end of the regex, surrounded by `(# )?`
+      # Escape any special characters.
+      - 'fmt\.Print.*(# Do not commit print statements\.)?'
+    # Exclude godoc examples from forbidigo checks.
+    # Default: true
+
+  errorlint:
+    # Check whether fmt.Errorf uses the %w verb for formatting errors.
+    # See the https://github.com/polyfloyd/go-errorlint for caveats.
+    # Default: true
+    errorf: false
+    # Check for plain type assertions and type switches.
+    # Default: true
+    asserts: false
+    # Check for plain error comparisons.
+    # Default: true
+    comparison: false
+linters:
+  enable:
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - depguard
+    - dogsled
+    - durationcheck
+    - errcheck
+    - errname
+    - exhaustive
+    - exportloopref
+    - funlen
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - gofmt
+    - gofumpt
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - importas
+    - ineffassign
+    - ireturn
+    - lll
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - paralleltest
+    - prealloc
+    - predeclared
+    - promlinter
+    - staticcheck
+    - stylecheck
+    - tenv
+    - testpackage
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+    - wsl
+    - thelper
+    - errorlint
+    - forcetypeassert
+    - gci
+    - forbidigo
+    - tagliatelle
+    - wrapcheck
+    - goerr113
+  disable:
+    - gomnd
+    - dupl
+    - revive
+    - gochecknoglobals
