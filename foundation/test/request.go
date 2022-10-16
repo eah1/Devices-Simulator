@@ -3,12 +3,13 @@ package test_test
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/require"
 )
 
 type RequestTest struct {

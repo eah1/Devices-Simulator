@@ -2,8 +2,7 @@
 package config
 
 import (
-	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -12,7 +11,7 @@ import (
 func LoadConfig() (Config, error) {
 	flags, err := getFlags()
 	if err != nil {
-		fmt.Println(err)
+		return Config{}, err
 	}
 
 	if checkFlags(flags) {
@@ -36,15 +35,11 @@ func getFlags() (map[string]string, error) {
 	rootCmd.Flags().StringToStringVarP(&flags, "flag", "f", nil, "Flag")
 
 	if err := viper.BindPFlag("flag", rootCmd.Flags().Lookup("flag")); err != nil {
-		fmt.Printf("error in BindPFlag, %v\n", err)
-
-		return flags, err
+		return flags, errors.Wrap(err, "error in BindPFlag")
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Printf("error in executet, %v\n", err)
-
-		return flags, err
+		return flags, errors.Wrap(err, "error in executed")
 	}
 
 	return flags, nil
@@ -83,9 +78,7 @@ func LoadConfigEnvironments() (Config, error) {
 	_ = viper.BindEnv("TRACESSAMPLERATE")
 
 	if err := viper.Unmarshal(&config); err != nil {
-		fmt.Printf("unable to decode into struct, %v\n", err)
-
-		return config, err
+		return config, errors.Wrap(err, "unable to decode into struct")
 	}
 
 	return config, nil
@@ -98,15 +91,12 @@ func LoadConfigFile(configFile string) (Config, error) {
 	viper.AddConfigPath(".")
 	viper.SetConfigFile(configFile)
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Printf("this file not exist, %v", err)
+	if err := viper.ReadInConfig(); err != nil {
+		return config, errors.Wrap(err, "this file not exist")
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		fmt.Printf("unable to decode into struct, %v\n", err)
-
-		return config, err
+		return config, errors.Wrap(err, "unable to decode into struct")
 	}
 
 	return config, nil

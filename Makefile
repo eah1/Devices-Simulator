@@ -3,6 +3,12 @@ tidy:
 	go mod tidy
 	go mod vendor
 
+# Linter and Test.
+lint:
+	golangci-lint version
+	golangci-lint linters
+	golangci-lint run --fix
+
 # Test.
 test:
 	go test -coverprofile=profile.cov ./... -p 2

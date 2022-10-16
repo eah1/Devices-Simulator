@@ -4,9 +4,11 @@ package health
 import (
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/web/responses"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"os"
+
+	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 )
 
 type Health struct {
@@ -35,5 +37,5 @@ func (h Health) Health(ctx echo.Context) error {
 		},
 	}
 
-	return ctx.JSON(http.StatusOK, respHealth)
+	return errors.Wrap(ctx.JSON(http.StatusOK, respHealth), "")
 }

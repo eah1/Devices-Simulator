@@ -1,10 +1,10 @@
 package test_test
 
 import (
-	"device-simulator/app/config"
-	"device-simulator/business/sys/logger"
 	"testing"
 
+	"device-simulator/app/config"
+	"device-simulator/business/sys/logger"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
