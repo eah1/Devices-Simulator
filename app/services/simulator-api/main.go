@@ -2,7 +2,7 @@ package main
 
 import (
 	"device-simulator/app/config"
-	"device-simulator/app/services/myc-devices-simulator/handlers"
+	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/sys/logger"
 	"device-simulator/business/sys/sentry"

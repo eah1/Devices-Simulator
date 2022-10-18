@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: device-simulator-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulator-api
+  namespace: device-simulator-system
+spec:
+  selector:
+    matchLabels:
+      app: simulator-api
+  template:
+    metadata:
+      labels:
+        app: simulator-api
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: simulator-api
+          image: simulator-api:1.0
+          env:
+            - name: MYC_DEVICES_SIMULATOR_HOST
+              value: "0.0.0.0"
+            - name: MYC_DEVICES_SIMULATOR_HOSTNAME
+              value: "simulator-api.localhost"
+            - name: MYC_DEVICES_SIMULATOR_PORT
+              value: "2323"
+            - name: MYC_DEVICES_SIMULATOR_BASEURL
+              value: "http://simulator-api.localhost"
+            - name: MYC_DEVICES_SIMULATOR_SERVERURI
+              value: "https://localhost:1323"
+            - name: MYC_DEVICES_SIMULATOR_SENTRY
+              value: "https://202df2322f1c4ef69a710b71f026350e@o913183.ingest.sentry.io/6164847"
+            - name: MYC_DEVICES_SIMULATOR_ENVIRONMENT
+              value: "localKind"
+            - name: MYC_DEVICES_SIMULATOR_RELEASE
+              value: "localKind"
+            - name: MYC_DEVICES_SIMULATOR_TRACESSAMPLERATE
+              value: "1.0"
+          ports:
+            - name: simulator-api
+              containerPort: 2323
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simulator-api-svc
+  namespace: device-simulator-system
+spec:
+  type: ClusterIP
+  selector:
+    app: devices-simulator
+  ports:
+    - name: simulator-api
+      port: 2323
+      targetPort: simulator-api

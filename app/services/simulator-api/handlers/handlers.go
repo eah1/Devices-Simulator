@@ -2,8 +2,8 @@
 package handlers
 
 import (
-	_ "device-simulator/app/services/myc-devices-simulator/docs"
-	"device-simulator/app/services/myc-devices-simulator/handlers/health"
+	_ "device-simulator/app/services/simulator-api/docs"
+	"device-simulator/app/services/simulator-api/handlers/health"
 	"device-simulator/business/sys/handler"
 
 	"github.com/labstack/echo/v4"

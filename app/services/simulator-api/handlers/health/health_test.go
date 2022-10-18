@@ -1,7 +1,7 @@
 package health_test
 
 import (
-	"device-simulator/app/services/myc-devices-simulator/handlers"
+	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/web/responses"
 	test_test "device-simulator/foundation/test"
 	"encoding/json"
