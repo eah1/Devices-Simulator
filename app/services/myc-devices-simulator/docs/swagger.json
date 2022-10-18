@@ -1,0 +1,58 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Devices Simulator documentation API.",
+        "title": "Swagger MYC-DEVICE-SIMULATOR API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/health": {
+            "get": {
+                "description": "Get status service to be alive",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check EndPoint",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessHealth"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "responses.Health": {
+            "type": "object",
+            "properties": {
+                "buildVersion": {
+                    "type": "string",
+                    "example": "localhost"
+                }
+            }
+        },
+        "responses.SuccessHealth": {
+            "type": "object",
+            "properties": {
+                "health": {
+                    "$ref": "#/definitions/responses.Health"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        }
+    }
+}
