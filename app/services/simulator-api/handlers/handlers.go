@@ -4,6 +4,7 @@ package handlers
 import (
 	_ "device-simulator/app/services/simulator-api/docs"
 	"device-simulator/app/services/simulator-api/handlers/health"
+	v1 "device-simulator/app/services/simulator-api/handlers/v1"
 	"device-simulator/business/sys/handler"
 
 	"github.com/labstack/echo/v4"
@@ -32,4 +33,7 @@ func GroupRoot(root *echo.Group, cfg handler.HandlerConfig) {
 	// Initialize health controllers.
 	handlerHealth := health.NewHealth(cfg)
 	root.GET("health", handlerHealth.Health)
+
+	// Create group v1.
+	v1.CreateGroup(root, cfg)
 }
