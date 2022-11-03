@@ -3,6 +3,7 @@ package main
 import (
 	"device-simulator/app/config"
 	"device-simulator/app/services/simulator-api/handlers"
+	"device-simulator/business/sys/binder"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/sys/logger"
 	"device-simulator/business/sys/sentry"
@@ -78,6 +79,9 @@ func startEcho(log *zap.SugaredLogger, cfg config.Config) error {
 
 	// Set logging level to INFO.
 	app.Logger.SetLevel(2)
+
+	// set binder custom.
+	app.Binder = &binder.CustomBinder{}
 
 	// Config sentry echo.
 	app.Use(echoSentry.New(echoSentry.Options{

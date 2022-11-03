@@ -97,10 +97,10 @@ linters:
     - gci
     - forbidigo
     - tagliatelle
-    - wrapcheck
     - goerr113
   disable:
     - gomnd
     - dupl
     - revive
     - gochecknoglobals
+    - wrapcheck
