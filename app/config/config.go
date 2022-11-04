@@ -11,4 +11,8 @@ type Config struct {
 	Environment      string
 	Release          string
 	TracesSampleRate float64
+	DBPostgres       string
+	DBMaxIdleConns   int
+	DBMaxOpenConns   int
+	DBLogger         bool
 }

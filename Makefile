@@ -4,7 +4,7 @@ VERSION := 1.0
 DEVICES_SIMULATOR_API_IMAGE_NAME := simulator-api
 
 ARCH :=  $(shell ./get-go-arch.sh)
-
+SCHEMA_DIR := business/db/schema
 KIND_CLUSTER := devices-simulator-cluster
 
 # Generate vendor
@@ -17,6 +17,24 @@ lint:
 	golangci-lint version
 	golangci-lint linters
 	golangci-lint run --fix
+
+# BBDD.
+start-postgres-test:
+	docker run --name postgresTest -e POSTGRES_PASSWORD=postgres -p 5430:5432  -d postgres
+	echo "POSTGRES_URI=\"postgres://postgres:postgres@localhost:5430/postgres?sslmode=disable\""
+	sleep 3
+
+stop-postgres-test:
+	docker stop postgresTest
+	docker rm postgresTest
+
+# Goose Postgres.
+goose-status:
+	GOOSE_DRIVER=postgres GOOSE_DBSTRING="$(POSTGRES_URI)" goose -dir "$(SCHEMA_DIR)" status
+goose-up:
+	GOOSE_DRIVER=postgres GOOSE_DBSTRING="$(POSTGRES_URI)" goose -dir "$(SCHEMA_DIR)" up
+goose-down:
+	GOOSE_DRIVER=postgres GOOSE_DBSTRING="$(POSTGRES_URI)" goose -dir "$(SCHEMA_DIR)" down
 
 # Test.
 test:

@@ -20,7 +20,16 @@ linters-settings:
       - 'fmt\.Print.*(# Do not commit print statements\.)?'
     # Exclude godoc examples from forbidigo checks.
     # Default: true
-
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: true
+      # `camel` is used for `json` and `yaml` (can be overridden)
+      # Default: {}
+      rules:
+        json: camel
   errorlint:
     # Check whether fmt.Errorf uses the %w verb for formatting errors.
     # See the https://github.com/polyfloyd/go-errorlint for caveats.

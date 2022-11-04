@@ -77,6 +77,12 @@ func LoadConfigEnvironments() (Config, error) {
 	_ = viper.BindEnv("RELEASE")
 	_ = viper.BindEnv("TRACESSAMPLERATE")
 
+	// env DB.
+	_ = viper.BindEnv("DBPOSTGRES")
+	_ = viper.BindEnv("DBMAXIDLECONNS")
+	_ = viper.BindEnv("DBMAXOPENCONNS")
+	_ = viper.BindEnv("DBLOGGER")
+
 	if err := viper.Unmarshal(&config); err != nil {
 		return config, errors.Wrap(err, "unable to decode into struct")
 	}

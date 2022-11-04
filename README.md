@@ -27,6 +27,24 @@ To use kind (optional):
 
 ### Local
 
+Start a database that listens on port 5430 (kind database is listening on 5432)
+
+    make start-postgres-test
+
+Update schema:
+
+    make goose-up POSTGRES_URI=$MYC_CLOUD_DBPOSTGRES
+
+Run tests:
+
+* First we need to make sure we have exported the following environment variables:
+
+      export MYC_DEVICES_SIMULATOR_DBPOSTGRES=postgres://postgres:postgres@localhost:5430/postgres?sslmode=disable
+
+* Now we can run the test assigning the previous variables:
+
+      make test
+
 Set a a configuration file:
 
     cp config.yaml.sample config.yaml
