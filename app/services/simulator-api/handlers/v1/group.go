@@ -11,5 +11,5 @@ import (
 func CreateGroup(app *echo.Group, cfg handler.HandlerConfig) {
 	v1 := app.Group("v1")
 
-	NewUserServiceGroup(v1, "/user", NewUser(cfg))
+	NewUserServiceGroup(v1, "/users", NewUser(cfg))
 }

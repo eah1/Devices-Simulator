@@ -35,16 +35,17 @@ func NewUserServiceGroup(app *echo.Group, prefix string, handlers User) {
 }
 
 // Create user create EndPoint.
-// @Summary Create Account EndPoint
+// @Summary Create user registration EndPoint
 // @Tags Users
-// @Description Create a new user.
+// @Description Create a new user in the system.
 // @Param UserRegister body webmodels.RegisterUser true "UserRegister"
 // @Accept json
 // @Produce json
-// @Success 200 {object} responseV2.AccountCreateSuccess
-// @Failure 400 {object} response.Validator
-// @Failure 409 {object} response.Failed
-// @Failure 500 {object} response.Failed.
+// @Success 201 {object} responses.Success
+// @Failure 400 {object} responses.Validator
+// @Failure 409 {object} responses.Failed
+// @Failure 500 {object} responses.Failed.
+// @Router /api/v1/users [post].
 func (h User) Create(ctx echo.Context) error {
 	userRegister := new(webmodels.RegisterUser)
 
@@ -61,8 +62,8 @@ func (h User) Create(ctx echo.Context) error {
 	}
 
 	if err := h.usecase.RegisterUser(*userRegister); err != nil {
-		return err
+		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
 	}
 
-	return nil
+	return ctx.JSON(http.StatusCreated, responses.Success{Status: "OK"})
 }

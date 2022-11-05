@@ -38,15 +38,88 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/users": {
+            "post": {
+                "description": "Create a new user in the system.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create user registration EndPoint",
+                "parameters": [
+                    {
+                        "description": "UserRegister",
+                        "name": "UserRegister",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webmodels.RegisterUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "responses.Failed": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ERROR"
+                }
+            }
+        },
         "responses.Health": {
             "type": "object",
             "properties": {
                 "buildVersion": {
                     "type": "string",
                     "example": "localhost"
+                }
+            }
+        },
+        "responses.Success": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "OK"
                 }
             }
         },
@@ -59,6 +132,61 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "OK"
+                }
+            }
+        },
+        "responses.Validator": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "ERROR"
+                }
+            }
+        },
+        "webmodels.RegisterUser": {
+            "type": "object",
+            "required": [
+                "company",
+                "email",
+                "firstName",
+                "language",
+                "lastName",
+                "password"
+            ],
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "enum": [
+                        "es",
+                        "en",
+                        "fr",
+                        "pt"
+                    ]
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "minLength": 8
                 }
             }
         }

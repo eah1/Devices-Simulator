@@ -46,18 +46,16 @@ func Open(cfg Config, retries int, log *zap.SugaredLogger) (*xorm.Engine, error)
 	err = engine.Ping()
 	for err != nil && i < retries {
 		log.Warn("Failed to connect to database (%d)", retries)
-
 		time.Sleep(time.Duration(500*i) * time.Millisecond)
 
 		i++
 
 		engine, _ = xorm.NewEngine("pgx", cfg.DBPostgres)
-
 		err = engine.Ping()
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unable to connection database")
 	}
 
 	engine.SetMaxIdleConns(cfg.MaxIdleConns)
