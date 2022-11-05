@@ -33,7 +33,7 @@ spec:
             - name: MYC_DEVICES_SIMULATOR_BASEURL
               value: "http://simulator-api.localhost"
             - name: MYC_DEVICES_SIMULATOR_SERVERURI
-              value: "https://localhost:1323"
+              value: "https://localhost:2323"
             - name: MYC_DEVICES_SIMULATOR_SENTRY
               value: "https://202df2322f1c4ef69a710b71f026350e@o913183.ingest.sentry.io/6164847"
             - name: MYC_DEVICES_SIMULATOR_ENVIRONMENT
@@ -42,6 +42,14 @@ spec:
               value: "localKind"
             - name: MYC_DEVICES_SIMULATOR_TRACESSAMPLERATE
               value: "1.0"
+            - name: MYC_DEVICES_SIMULATOR_DBPOSTGRES
+              value: "postgres://postgres:postgres@localhost/postgres?sslmode=disable&timezone=utc"
+            - name: MYC_DEVICES_SIMULATOR_DBMAXIDLECONNS
+              value: "0"
+            - name: MYC_DEVICES_SIMULATOR_DBMAXOPENCONNS
+              value: "0"
+            - name: MYC_DEVICES_SIMULATOR_DBLOGGER
+              value: "false"
           ports:
             - name: simulator-api
               containerPort: 2323

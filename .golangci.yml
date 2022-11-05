@@ -1,12 +1,10 @@
 run:
-  tests: false
+  #tests: false
   timeout: 5m
   skip-dirs:
     - app/services/mqtt-broker
     - app/services/myc-frontend-v1
 linters-settings:
-#  lll:
-#    line-length: 140
   funlen:
     lines: 85
   forbidigo:
@@ -113,3 +111,8 @@ linters:
     - revive
     - gochecknoglobals
     - wrapcheck
+issues:
+  exclude-rules:
+    - path: (.+)_test.go
+      linters:
+        - funlen

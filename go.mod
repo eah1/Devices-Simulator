@@ -21,6 +21,7 @@ require (
 	github.com/swaggo/swag v1.8.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.1.0
+	syreclabs.com/go/faker v1.2.3
 	xorm.io/xorm v1.3.2
 )
 

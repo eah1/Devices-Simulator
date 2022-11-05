@@ -1,0 +1,13 @@
+HOST: "0.0.0.0"
+HOSTNAME: "myc-api.localhost"
+PORT: 1325
+BASEURL: "http://myc-api.localhost"
+SERVERURI: "https://localhost:1325"
+SENTRY: "https://202df2322f1c4ef69a710b71f026350e@o913183.ingest.sentry.io/6164847"
+ENVIRONMENT: "localE"
+RELEASE: "localE"
+TRACESSAMPLERATE: "1.0"
+DBPOSTGRES: "postgres://postgres:postgres@localhost:5430/postgres?sslmode=disable"
+DBMAXIDLECONNS: "1"
+DBMAXOPENCONNS: "0"
+DBLOGGER: "false"

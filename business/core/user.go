@@ -5,6 +5,7 @@ import (
 	"device-simulator/app/config"
 	"device-simulator/business/core/models"
 	"device-simulator/business/db/store"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"

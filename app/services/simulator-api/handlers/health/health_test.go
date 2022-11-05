@@ -1,16 +1,19 @@
 package health_test
 
 import (
+	"encoding/json"
+	"net/http"
+	"testing"
+
 	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/web/responses"
-	test_test "device-simulator/foundation/test"
-	"encoding/json"
+	tt "device-simulator/foundation/test"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
+
+const healthURI = "/api/health"
 
 func TestHandlerHealth(t *testing.T) {
 	t.Parallel()
@@ -19,7 +22,7 @@ func TestHandlerHealth(t *testing.T) {
 	app := echo.New()
 
 	// Create a configuration handlers.
-	handlerConfig := test_test.InitHandlerConfig(t, "test-handler-health")
+	handlerConfig := tt.InitHandlerConfig(t, "test-handler-health")
 
 	// Initializing handles.
 	handlers.Handlers(app, handlerConfig)
@@ -28,7 +31,7 @@ func TestHandlerHealth(t *testing.T) {
 	{
 		t.Logf("\tWhen a health makes a request")
 		{
-			_, rec := test_test.MakeRequest(t, test_test.NewRequestTest(app, "GET", "/api/health", nil, nil, nil))
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodGet, healthURI, nil, nil, nil))
 
 			var respData responses.SuccessHealth
 

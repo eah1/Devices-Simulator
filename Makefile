@@ -1,11 +1,13 @@
 # Application
-
 VERSION := 1.0
+ARCH :=  $(shell ./get-go-arch.sh)
+
+KIND_CLUSTER := devices-simulator-cluster
 DEVICES_SIMULATOR_API_IMAGE_NAME := simulator-api
 
-ARCH :=  $(shell ./get-go-arch.sh)
 SCHEMA_DIR := business/db/schema
-KIND_CLUSTER := devices-simulator-cluster
+POSTGRES_URI := postgres://postgres:postgres@localhost:5430/postgres?sslmode=disable&timezone=utc
+POSTGRES_KIND_URI := postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable&timezone=utc
 
 # Generate vendor
 tidy:
@@ -38,7 +40,7 @@ goose-down:
 
 # Test.
 test:
-	go test -coverprofile=profile.cov ./... -p 2
+	MYC_DEVICES_SIMULATOR_DBPOSTGRES=$(POSTGRES_URI) go test -coverprofile=profile.cov ./... -p 2
 	go tool cover -func profile.cov
 	go vet ./...
 	gofmt -l .
@@ -88,6 +90,8 @@ kind-status:
 
 kind-status-service:
 	kubectl get pods -o wide --watch -n device-simulator-system
+kind-status-db:
+	kubectl get pods -o wide --watch --namespace=database-system
 
 kind-ingress-check:
 	kubectl wait --namespace ingress-nginx \
@@ -102,16 +106,32 @@ kind-load-simulator-api:
 
 kind-apply-simulator-api:
 	kustomize build deploy/k8s/kind/simulator-api-pod | kubectl apply -f -
+kind-apply-db:
+	kustomize build deploy/k8s/kind/database-pod | kubectl apply -f -
+	kubectl wait --namespace=database-system --timeout=120s --for=condition=Available deployment/database-pod
 
 kind-restart:
-	kubectl rollout restart deployment simulator-api -n device-simulator-system
+	kubectl rollout restart deployment simulator-api --namespace=device-simulator-system
 
 kind-update: all kind-load kind-restart
-kind-update-apply: all kind-load kind-apply-simulator-api
+kind-update-apply: all kind-load kind-apply-simulator-api kind-apply-db
 
-# Kind logs && describe.
+# Kind logs.
 kind-logs-simulator-api:
-	kubectl logs -l app=simulator-api --all-containers=true -f --tail=100 -n device-simulator-system
+	kubectl logs -l app=simulator-api --all-containers=true -f --tail=100 --namespace=device-simulator-system
+kind-logs-db:
+	kubectl logs -l app=database --namespace=database-system --all-containers=true -f --tail=100
 
+# Kind describe.
 kind-describe-simulator-api:
-	kubectl describe pod -l app=simulator-api -n device-simulator-system
+	kubectl describe pod -l app=simulator-api --namespace=device-simulator-system
+kind-describe-db:
+	kubectl describe pod -l app=database --namespace=database-system
+
+# kind DDBB.
+kind-connection-db:
+	kubectl exec -it <pod> --namespace=database-system -- psql -h <host> -U <user> --password -p 5432 postgres
+
+kind-db-migration:
+	GOOSE_DRIVER=postgres GOOSE_DBSTRING="$(POSTGRES_KIND_URI)" goose -dir "$(SCHEMA_DIR)" status
+	GOOSE_DRIVER=postgres GOOSE_DBSTRING="$(POSTGRES_KIND_URI)" goose -dir "$(SCHEMA_DIR)" up

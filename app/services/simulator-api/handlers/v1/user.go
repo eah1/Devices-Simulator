@@ -44,7 +44,7 @@ func NewUserServiceGroup(app *echo.Group, prefix string, handlers User) {
 // @Success 201 {object} responses.Success
 // @Failure 400 {object} responses.Validator
 // @Failure 409 {object} responses.Failed
-// @Failure 500 {object} responses.Failed.
+// @Failure 500 {object} responses.Failed
 // @Router /api/v1/users [post].
 func (h User) Create(ctx echo.Context) error {
 	userRegister := new(webmodels.RegisterUser)
@@ -62,6 +62,9 @@ func (h User) Create(ctx echo.Context) error {
 	}
 
 	if err := h.usecase.RegisterUser(*userRegister); err != nil {
+		h.cfg.Log.Errorw("Create -> RegisterUser",
+			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
+
 		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
 	}
 
