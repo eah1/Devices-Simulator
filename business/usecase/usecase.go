@@ -5,6 +5,7 @@ import (
 	"device-simulator/app/config"
 	"device-simulator/business/core"
 	"device-simulator/business/db/store"
+	"device-simulator/business/web/webmodels"
 
 	"go.uber.org/zap"
 )
@@ -20,3 +21,9 @@ func NewUseCase(log *zap.SugaredLogger, config config.Config, store store.Store)
 		core: core.NewCore(log, config, store),
 	}
 }
+
+type User interface {
+	RegisterUser(userRegister webmodels.RegisterUser) error
+}
+
+//go:generate mockery --name User --structname UserMock --filename UserMock.go
