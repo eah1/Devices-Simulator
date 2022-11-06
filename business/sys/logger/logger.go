@@ -14,6 +14,10 @@ func InitLogger(service, env string) (*zap.SugaredLogger, error) {
 		atom.SetLevel(zapcore.ErrorLevel)
 	}
 
+	if env == "test" {
+		atom.SetLevel(zapcore.PanicLevel)
+	}
+
 	config := zap.NewProductionConfig()
 	config.Level = atom
 	config.OutputPaths = []string{"stdout"}

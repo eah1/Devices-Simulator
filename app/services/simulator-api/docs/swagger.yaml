@@ -1,9 +1,23 @@
 basePath: /
 definitions:
+  responses.Failed:
+    properties:
+      error:
+        type: string
+      status:
+        example: ERROR
+        type: string
+    type: object
   responses.Health:
     properties:
       buildVersion:
         example: localhost
+        type: string
+    type: object
+  responses.Success:
+    properties:
+      status:
+        example: OK
         type: string
     type: object
   responses.SuccessHealth:
@@ -13,6 +27,46 @@ definitions:
       status:
         example: OK
         type: string
+    type: object
+  responses.Validator:
+    properties:
+      details:
+        items:
+          type: string
+        type: array
+      status:
+        example: ERROR
+        type: string
+    type: object
+  webmodels.RegisterUser:
+    properties:
+      company:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      language:
+        enum:
+        - es
+        - en
+        - fr
+        - pt
+        maxLength: 2
+        type: string
+      lastName:
+        type: string
+      password:
+        maxLength: 64
+        minLength: 8
+        type: string
+    required:
+    - company
+    - email
+    - firstName
+    - language
+    - lastName
+    - password
     type: object
 info:
   contact: {}
@@ -35,4 +89,38 @@ paths:
       summary: Health check EndPoint
       tags:
       - Health
+  /api/v1/users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user in the system.
+      parameters:
+      - description: UserRegister
+        in: body
+        name: UserRegister
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.RegisterUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      summary: Create user registration EndPoint
+      tags:
+      - Users
 swagger: "2.0"

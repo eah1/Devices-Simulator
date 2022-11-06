@@ -3,12 +3,15 @@ package main
 import (
 	"device-simulator/app/config"
 	"device-simulator/app/services/simulator-api/handlers"
+	"device-simulator/business/sys/binder"
+	"device-simulator/business/sys/db"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/sys/logger"
 	"device-simulator/business/sys/sentry"
 	"device-simulator/business/web/middlewares/common"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	goSentry "github.com/getsentry/sentry-go"
@@ -16,6 +19,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"xorm.io/xorm"
 )
 
 func main() {
@@ -53,6 +57,26 @@ func main() {
 func run(log *zap.SugaredLogger, cfg config.Config) error {
 	log.Infow("startup")
 
+	// Create connectivity to the database.
+	host := cfg.DBPostgres[strings.Index(cfg.DBPostgres, "@")+1 : strings.LastIndex(cfg.DBPostgres, "/")]
+
+	database, err := db.Open(db.NewConfigDB(cfg), 5, log)
+	if err != nil {
+		log.Errorf("database open: %s", err)
+
+		return fmt.Errorf("database open: %w", err)
+	}
+
+	log.Infow("starting database status", "host", host)
+
+	defer func() {
+		log.Infow("shutdown - stopping database support", "host", host)
+
+		if err := database.Close(); err != nil {
+			log.Error(err)
+		}
+	}()
+
 	// Created a basic configuration sentry.
 	if err := goSentry.Init(sentry.InitSentryConfig(cfg)); err != nil {
 		log.Errorf("sentry configuration: %s", err)
@@ -63,13 +87,13 @@ func run(log *zap.SugaredLogger, cfg config.Config) error {
 	log.Infow("starting sentry config status")
 
 	// start services.
-	log.Errorf("%s", startEcho(log, cfg))
+	log.Errorf("%s", startEcho(log, cfg, database))
 
 	return nil
 }
 
 // startEcho start server.
-func startEcho(log *zap.SugaredLogger, cfg config.Config) error {
+func startEcho(log *zap.SugaredLogger, cfg config.Config, db *xorm.Engine) error {
 	// Start App
 	app := echo.New()
 
@@ -78,6 +102,9 @@ func startEcho(log *zap.SugaredLogger, cfg config.Config) error {
 
 	// Set logging level to INFO.
 	app.Logger.SetLevel(2)
+
+	// set binder custom.
+	app.Binder = &binder.CustomBinder{}
 
 	// Config sentry echo.
 	app.Use(echoSentry.New(echoSentry.Options{
@@ -90,7 +117,7 @@ func startEcho(log *zap.SugaredLogger, cfg config.Config) error {
 	common.AddCommonMiddlewares(app, log)
 
 	// Initializing handles.
-	handlerConfig := handler.NewHandlerConfig(cfg, log)
+	handlerConfig := handler.NewHandlerConfig(cfg, log, db)
 	handlers.Handlers(app, handlerConfig)
 
 	return errors.Wrap(app.Start(cfg.Host+":"+cfg.Port), "error in server")

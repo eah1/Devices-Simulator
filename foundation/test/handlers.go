@@ -12,6 +12,7 @@ func InitHandlerConfig(t *testing.T, service string) handler.HandlerConfig {
 	handlerConfig := new(handler.HandlerConfig)
 	handlerConfig.Log = InitLogger(t, service)
 	handlerConfig.Config = InitConfig()
+	handlerConfig.DB = InitDatabase(t, handlerConfig.Config, handlerConfig.Log)
 
 	return *handlerConfig
 }
