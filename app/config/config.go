@@ -15,4 +15,13 @@ type Config struct {
 	DBMaxIdleConns   int
 	DBMaxOpenConns   int
 	DBLogger         bool
+	QueueHost        string
+	QueuePort        string
+	QueueConcurrency int
+	PostmarkToken    string
+	SMTPHost         string
+	SMTPPort         string
+	SMTPNetwork      string
+	SMTPFrom         string
+	TemplateFolder   string
 }

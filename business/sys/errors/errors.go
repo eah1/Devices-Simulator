@@ -10,4 +10,5 @@ var (
 
 	ErrElementDuplicated = errors.New("Element duplicated")
 	ErrElementRequest    = errors.New("Element request failed")
+	ErrElementNotExist   = errors.New("Element not exist")
 )

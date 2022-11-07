@@ -1,6 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	"device-simulator/app/config"
 	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/sys/binder"
@@ -9,13 +14,9 @@ import (
 	"device-simulator/business/sys/logger"
 	"device-simulator/business/sys/sentry"
 	"device-simulator/business/web/middlewares/common"
-	"fmt"
-	"os"
-	"strings"
-	"time"
-
 	goSentry "github.com/getsentry/sentry-go"
 	echoSentry "github.com/getsentry/sentry-go/echo"
+	"github.com/hibiken/asynq"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -30,14 +31,15 @@ func main() {
 	}
 
 	// Construct the application logger.
-	log, err := logger.InitLogger("MYC-DEVICES-SIMULATOR", cfg.Environment)
+	log, err := logger.InitLogger("SIMULATOR-API", cfg.Environment)
 	if err != nil {
 		os.Exit(1)
 	}
 
 	log.Infow("starting environments status",
 		"host", cfg.Host, "hostName", cfg.HostName, "port", cfg.Port,
-		"base url", cfg.BaseURL, "server URI", cfg.ServerURI, "environment", cfg.Environment)
+		"base url", cfg.BaseURL, "server URI", cfg.ServerURI, "environment", cfg.Environment,
+		"hostQueue", cfg.QueueHost+":"+cfg.QueuePort)
 
 	// Perform the startup and shutdown sequence.
 	if err := run(log, cfg); err != nil {
@@ -86,14 +88,23 @@ func run(log *zap.SugaredLogger, cfg config.Config) error {
 
 	log.Infow("starting sentry config status")
 
+	clientQueue := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.QueueHost + ":" + cfg.QueuePort})
+	defer func(client *asynq.Client) {
+		log.Infow("close client queue", "host", cfg.QueueHost+":"+cfg.QueuePort)
+
+		if err := client.Close(); err != nil {
+			log.Error(err)
+		}
+	}(clientQueue)
+
 	// start services.
-	log.Errorf("%s", startEcho(log, cfg, database))
+	log.Errorf("%s", startEcho(log, cfg, database, clientQueue))
 
 	return nil
 }
 
 // startEcho start server.
-func startEcho(log *zap.SugaredLogger, cfg config.Config, db *xorm.Engine) error {
+func startEcho(log *zap.SugaredLogger, cfg config.Config, db *xorm.Engine, clientQueue *asynq.Client) error {
 	// Start App
 	app := echo.New()
 
@@ -117,7 +128,7 @@ func startEcho(log *zap.SugaredLogger, cfg config.Config, db *xorm.Engine) error
 	common.AddCommonMiddlewares(app, log)
 
 	// Initializing handles.
-	handlerConfig := handler.NewHandlerConfig(cfg, log, db)
+	handlerConfig := handler.NewHandlerConfig(cfg, log, db, clientQueue, nil)
 	handlers.Handlers(app, handlerConfig)
 
 	return errors.Wrap(app.Start(cfg.Host+":"+cfg.Port), "error in server")

@@ -5,11 +5,11 @@ import (
 	"device-simulator/business/sys/binder"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
+	tt "device-simulator/foundation/test"
 	"encoding/json"
 	"net/http"
 	"testing"
 
-	tt "device-simulator/foundation/test"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
