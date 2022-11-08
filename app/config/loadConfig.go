@@ -83,6 +83,19 @@ func LoadConfigEnvironments() (Config, error) {
 	_ = viper.BindEnv("DBMAXOPENCONNS")
 	_ = viper.BindEnv("DBLOGGER")
 
+	// env QUEUE.
+	_ = viper.BindEnv("QUEUEHOST")
+	_ = viper.BindEnv("QUEUEPORT")
+	_ = viper.BindEnv("QUEUECONCURRENCY")
+
+	// env Email.
+	_ = viper.BindEnv("POSTMARKTOKEN")
+	_ = viper.BindEnv("SMTPHOST")
+	_ = viper.BindEnv("SMTPPORT")
+	_ = viper.BindEnv("SMTPNETWORK")
+	_ = viper.BindEnv("SMTPFROM")
+	_ = viper.BindEnv("TEMPLATEFOLDER")
+
 	if err := viper.Unmarshal(&config); err != nil {
 		return config, errors.Wrap(err, "unable to decode into struct")
 	}

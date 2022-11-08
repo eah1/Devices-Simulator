@@ -22,8 +22,9 @@ type User struct {
 // NewUser constructs a handler User.
 func NewUser(cfg handler.HandlerConfig) User {
 	return User{
-		cfg:     cfg,
-		usecase: usecase.NewUseCase(cfg.Log, cfg.Config, store.NewStore(cfg.Log, cfg.DB)),
+		cfg: cfg,
+		usecase: usecase.NewUseCase(
+			cfg.Log, cfg.Config, store.NewStore(cfg.Log, cfg.DB), cfg.ClientQueue, cfg.EmailSender),
 	}
 }
 
@@ -63,6 +64,13 @@ func (h User) Create(ctx echo.Context) error {
 
 	if err := h.usecase.RegisterUser(*userRegister); err != nil {
 		h.cfg.Log.Errorw("Create -> RegisterUser",
+			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
+
+		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+	}
+
+	if err := h.usecase.SendValidationEmail(userRegister.Email); err != nil {
+		h.cfg.Log.Errorw("Create -> SendValidationEmail",
 			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
 
 		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))

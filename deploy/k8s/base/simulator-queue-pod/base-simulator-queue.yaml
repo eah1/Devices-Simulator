@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: device-simulator-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulator-queue
+  namespace: device-simulator-system
+spec:
+  selector:
+    matchLabels:
+      app: simulator-queue
+  template:
+    metadata:
+      labels:
+        app: simulator-queue
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: simulator-queue
+          image: simulator-queue:1.0
+          env:
+            - name: MYC_DEVICES_SIMULATOR_HOST
+              value: "0.0.0.0"
+            - name: MYC_DEVICES_SIMULATOR_HOSTNAME
+              value: "simulator-queue.localhost"
+            - name: MYC_DEVICES_SIMULATOR_PORT
+              value: "2324"
+            - name: MYC_DEVICES_SIMULATOR_BASEURL
+              value: "http://simulator-queue.localhost"
+            - name: MYC_DEVICES_SIMULATOR_SERVERURI
+              value: "https://localhost:2324"
+            - name: MYC_DEVICES_SIMULATOR_SENTRY
+              value: "https://202df2322f1c4ef69a710b71f026350e@o913183.ingest.sentry.io/6164847"
+            - name: MYC_DEVICES_SIMULATOR_ENVIRONMENT
+              value: "localKind"
+            - name: MYC_DEVICES_SIMULATOR_RELEASE
+              value: "localKind"
+            - name: MYC_DEVICES_SIMULATOR_TRACESSAMPLERATE
+              value: "0.0"
+            - name: MYC_DEVICES_SIMULATOR_DBPOSTGRES
+              value: "postgres://postgres:postgres@localhost/postgres?sslmode=disable&timezone=utc"
+            - name: MYC_DEVICES_SIMULATOR_DBMAXIDLECONNS
+              value: "0"
+            - name: MYC_DEVICES_SIMULATOR_DBMAXOPENCONNS
+              value: "0"
+            - name: MYC_DEVICES_SIMULATOR_DBLOGGER
+              value: "false"
+            - name: MYC_DEVICES_SIMULATOR_QUEUEHOST
+              value: "0.0.0.0"
+            - name: MYC_DEVICES_SIMULATOR_QUEUEPORT
+              value: "6379"
+            - name: MYC_DEVICES_SIMULATOR_QUEUECONCURRENCY
+              value: "15"
+            - name: MYC_DEVICES_SIMULATOR_POSTMARKTOKEN
+              value: "6c222786-1b8c-4aec-bd06-4b54d979b0cf"
+            - name: MYC_DEVICES_SIMULATOR_SMTPHOST
+              value: "smtp.postmarkapp.com"
+            - name: MYC_DEVICES_SIMULATOR_SMTPPORT
+              value: "587"
+            - name: MYC_DEVICES_SIMULATOR_SMTPNETWORK
+              value: "tcp"
+            - name: MYC_DEVICES_SIMULATOR_SMTPFROM
+              value: "no-reply@circutor.com"
+            - name: MYC_DEVICES_SIMULATOR_TEMPLATEFOLDER
+              value: "business/template/"
+          ports:
+            - name: simulator-queue
+              containerPort: 2324
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simulator-queue-svc
+  namespace: device-simulator-system
+spec:
+  type: ClusterIP
+  selector:
+    app: devices-simulator
+  ports:
+    - name: simulator-queue
+      port: 2324
+      targetPort: simulator-queue

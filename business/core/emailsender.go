@@ -1,0 +1,59 @@
+// Package core contains core business API.
+package core
+
+import (
+	"device-simulator/app/config"
+	"device-simulator/business/db/store"
+	"device-simulator/business/sys/emailsender"
+	emailConfig "device-simulator/foundation/email"
+
+	"github.com/jhillyerd/enmime"
+	"go.uber.org/zap"
+)
+
+// EmailSenderCore manages the set of API for email sender access.
+type EmailSenderCore struct {
+	log         *zap.SugaredLogger
+	config      config.Config
+	store       store.Store
+	emailSender *enmime.SMTPSender
+	core        *Core
+}
+
+// NewEmailSenderCore constructs a core for user API access.
+func NewEmailSenderCore(
+	log *zap.SugaredLogger, config config.Config, store store.Store, emailSender *enmime.SMTPSender, core *Core,
+) EmailSenderCore {
+	return EmailSenderCore{
+		log:         log,
+		config:      config,
+		store:       store,
+		emailSender: emailSender,
+		core:        core,
+	}
+}
+
+// SendValidationEmail send validation email.
+func (c *EmailSenderCore) SendValidationEmail(email, validationToken, language string) error {
+	receiver := []string{email}
+
+	emailType := "account-validation"
+	template := language + "/account-validation.html"
+	title := emailConfig.Subject(emailType, language)
+
+	data := struct {
+		Email, ValidationURI string
+	}{Email: email, ValidationURI: validationToken}
+
+	emailStructure := emailsender.NewEmailStructure(
+		c.emailSender, emailType, title, template, c.config.SMTPFrom, receiver, data, c.log)
+
+	if err := emailsender.SendEmail(c.config.TemplateFolder, emailStructure); err != nil {
+		c.log.Errorw("SendValidationEmail error -> SendEmail",
+			"service", "CORE | EMAIL SENDER | SEND EMAIL", "error", err.Error())
+
+		return err
+	}
+
+	return nil
+}

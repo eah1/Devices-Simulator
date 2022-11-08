@@ -23,6 +23,7 @@ ARG BUILD_REF
 ENV BUILD_REF=${BUILD_REF}
 
 COPY --from=builder  /Device-Simulator/app/services/simulator-api/ /services/simulator-api
+COPY --from=builder /Device-Simulator/business/template/ /services/simulator-api/business/template/
 WORKDIR /services/simulator-api
 
 CMD ["./simulator-api"]

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulator-queue
+  namespace: device-simulator-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: simulator-queue
+  template:
+    metadata:
+      labels:
+        app: simulator-queue
+    spec:
+      containers:
+        # service-queue container configuration
+        - name: simulator-queue
+          resources:
+            limits:
+              cpu: "2000m" # Up to 2 full cores
+            requests:
+              cpu: "100m" # Use 1 full cores
