@@ -14,5 +14,10 @@ func InitHandlerConfig(t *testing.T, service string) handler.HandlerConfig {
 	handlerConfig.Config = InitConfig()
 	handlerConfig.DB = InitDatabase(t, handlerConfig.Config, handlerConfig.Log)
 
+	handlerConfig.Config.TemplateFolder = "../../business/template/"
+
+	handlerConfig.EmailSender = InitEmailConfig(t, handlerConfig.Config)
+	handlerConfig.ClientQueue = InitClientQueue(t, handlerConfig.Config)
+
 	return *handlerConfig
 }

@@ -9,15 +9,17 @@ import (
 
 // User represents the structure we need for moving data.
 type User struct {
-	ID        string    `xorm:"pk not null 'id'"      json:"id"`
-	FirstName string    `xorm:"first_name"            json:"firstName"`
-	LastName  string    `xorm:"last_name"             json:"lastName"`
-	Email     string    `xorm:"not null unique email" json:"email"`
-	Password  string    `xorm:"password"              json:"-"`
-	Language  string    `xorm:"language"              json:"language"`
-	Company   string    `xorm:"company"               json:"company"`
-	CreatedAt time.Time `xorm:"created"               json:"-"`
-	UpdatedAt time.Time `xorm:"updated"               json:"-"`
+	ID              string    `xorm:"pk not null 'id'"      json:"id"`
+	FirstName       string    `xorm:"first_name"            json:"firstName"`
+	LastName        string    `xorm:"last_name"             json:"lastName"`
+	Email           string    `xorm:"not null unique email" json:"email"`
+	Password        string    `xorm:"password"              json:"-"`
+	Language        string    `xorm:"language"              json:"language"`
+	Company         string    `xorm:"company"               json:"company"`
+	Validated       bool      `xorm:"validated"             json:"-"`
+	ValidationToken string    `xorm:"validation_token"      json:"-"`
+	CreatedAt       time.Time `xorm:"created"               json:"-"`
+	UpdatedAt       time.Time `xorm:"updated"               json:"-"`
 }
 
 func (*User) TableName() string {

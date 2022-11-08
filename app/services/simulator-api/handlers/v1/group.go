@@ -3,7 +3,6 @@ package v1
 
 import (
 	"device-simulator/business/sys/handler"
-
 	"github.com/labstack/echo/v4"
 )
 

@@ -1,27 +1,27 @@
 package usecase_test
 
 import (
-	"testing"
-
 	"device-simulator/business/db/store"
 	errors2 "device-simulator/business/sys/errors"
 	"device-simulator/business/usecase"
 	tt "device-simulator/foundation/test"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"syreclabs.com/go/faker"
 )
 
 func TestUseCaseRegisterUser(t *testing.T) {
 	t.Parallel()
 
-	testName := "use-case-register_user"
+	testName := "use-case-register-user"
 
 	// Create store.
 	newLog := tt.InitLogger(t, "t-"+testName)
 	newConfig := tt.InitConfig()
-	newDataBase := tt.InitDatabase(t, newConfig, newLog)
-	newStore := store.NewStore(newLog, newDataBase)
-	newUseCase := usecase.NewUseCase(newLog, newConfig, newStore)
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newUseCase := usecase.NewUseCase(newLog, newConfig, newStore, nil, nil)
 
 	t.Log("Given the need to work with the registration user use case.")
 	{
@@ -31,14 +31,14 @@ func TestUseCaseRegisterUser(t *testing.T) {
 
 			assert.Nil(t, newUseCase.RegisterUser(user))
 
-			query, err := newDataBase.Query("SELECT * FROM users WHERE email = ?", user.Email)
+			userDB, err := newStore.UserFindByEmail(user.Email)
 			require.NoError(t, err)
 
-			assert.Equal(t, user.FirstName, string(query[0]["first_name"]))
-			assert.Equal(t, user.LastName, string(query[0]["last_name"]))
-			assert.Equal(t, user.Email, string(query[0]["email"]))
-			assert.Equal(t, user.Company, string(query[0]["company"]))
-			assert.Equal(t, user.Language, string(query[0]["language"]))
+			assert.Equal(t, user.FirstName, userDB.FirstName)
+			assert.Equal(t, user.LastName, userDB.LastName)
+			assert.Equal(t, user.Email, userDB.Email)
+			assert.Equal(t, user.Company, userDB.Company)
+			assert.Equal(t, user.Language, userDB.Language)
 		}
 
 		t.Logf("\tWhen creating a registration duplicate user.")
@@ -55,6 +55,36 @@ func TestUseCaseRegisterUser(t *testing.T) {
 			user.Email = ""
 
 			assert.Error(t, errors2.ErrElementRequest, newUseCase.RegisterUser(user))
+		}
+	}
+}
+
+func TestUseCaseSendValidationEmail(t *testing.T) {
+	t.Parallel()
+
+	testName := "use-case-send-validation-token"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+
+	newUseCase := usecase.NewUseCase(
+		newLog, newConfig, newStore, tt.InitClientQueue(t, newConfig), tt.InitEmailConfig(t, newConfig))
+
+	t.Log("Given the need to work with the send validation email use case.")
+	{
+		t.Logf("\tWhen a correct a send validation email.")
+		{
+			user := tt.NewRegistrationUser(testName)
+			assert.Nil(t, newUseCase.RegisterUser(user))
+
+			assert.Nil(t, newUseCase.SendValidationEmail(user.Email))
+		}
+
+		t.Logf("\tWhen a failed send validation email where email not exist.")
+		{
+			assert.Error(t, errors2.ErrElementNotExist, newUseCase.SendValidationEmail(faker.Internet().Email()))
 		}
 	}
 }

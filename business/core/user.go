@@ -5,6 +5,7 @@ import (
 	"device-simulator/app/config"
 	"device-simulator/business/core/models"
 	"device-simulator/business/db/store"
+	"device-simulator/foundation"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -57,4 +58,41 @@ func (c *UserCore) Create(user models.User) error {
 	}
 
 	return nil
+}
+
+// CreateValidationToken generate validation token from email activation.
+func (c *UserCore) CreateValidationToken(user *models.User) error {
+	validationToken, err := foundation.GenerateToken(16)
+	if err != nil {
+		c.log.Errorw("Create validation token",
+			"service", "CORE | USER", "error", err.Error())
+
+		return err
+	}
+
+	user.ValidationToken = *validationToken
+
+	if err := c.store.UserUpdate(*user); err != nil {
+		c.log.Errorw("CreateValidationToken error to Update user",
+			"service", "CORE | USER", "error", err.Error())
+
+		user.ValidationToken = ""
+
+		return err
+	}
+
+	return nil
+}
+
+// FindByEmail search user by email field.
+func (c *UserCore) FindByEmail(email string) (models.User, error) {
+	user, err := c.store.UserFindByEmail(email)
+	if err != nil {
+		c.log.Errorw("FindByEmail error",
+			"service", "CORE | USER", "error", err.Error())
+
+		return user, err
+	}
+
+	return user, nil
 }

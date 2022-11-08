@@ -41,7 +41,7 @@ spec:
             - name: MYC_DEVICES_SIMULATOR_RELEASE
               value: "localKind"
             - name: MYC_DEVICES_SIMULATOR_TRACESSAMPLERATE
-              value: "1.0"
+              value: "0.0"
             - name: MYC_DEVICES_SIMULATOR_DBPOSTGRES
               value: "postgres://postgres:postgres@localhost/postgres?sslmode=disable&timezone=utc"
             - name: MYC_DEVICES_SIMULATOR_DBMAXIDLECONNS
@@ -50,6 +50,24 @@ spec:
               value: "0"
             - name: MYC_DEVICES_SIMULATOR_DBLOGGER
               value: "false"
+            - name: MYC_DEVICES_SIMULATOR_QUEUEHOST
+              value: "0.0.0.0"
+            - name: MYC_DEVICES_SIMULATOR_QUEUEPORT
+              value: "6379"
+            - name: MYC_DEVICES_SIMULATOR_QUEUECONCURRENCY
+              value: "15"
+            - name: MYC_DEVICES_SIMULATOR_POSTMARKTOKEN
+              value: "6c222786-1b8c-4aec-bd06-4b54d979b0cf"
+            - name: MYC_DEVICES_SIMULATOR_SMTPHOST
+              value: "smtp.postmarkapp.com"
+            - name: MYC_DEVICES_SIMULATOR_SMTPPORT
+              value: "587"
+            - name: MYC_DEVICES_SIMULATOR_SMTPNETWORK
+              value: "tcp"
+            - name: MYC_DEVICES_SIMULATOR_SMTPFROM
+              value: "no-reply@circutor.com"
+            - name: MYC_DEVICES_SIMULATOR_TEMPLATEFOLDER
+              value: "business/template/"
           ports:
             - name: simulator-api
               containerPort: 2323
