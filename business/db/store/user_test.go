@@ -3,9 +3,9 @@ package store_test
 import (
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/errors"
-	tt "device-simulator/foundation/test"
 	"testing"
 
+	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 )
@@ -91,6 +91,51 @@ func TestUserFindByEmail(t *testing.T) {
 	}
 }
 
+func TestUserFindByValidationToken(t *testing.T) {
+	t.Parallel()
+
+	testName := "store-user-find-by-validation-token"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+
+	t.Log("Given the need to work with user find by validation token in database.")
+	{
+		t.Logf("\tWhen a correct find user by validation token.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+
+			userFind, err := newStore.UserFindByValidationToken(user.ValidationToken)
+
+			assert.Equal(t, user.ValidationToken, userFind.ValidationToken)
+			assert.Nil(t, err)
+		}
+
+		t.Logf("\tWhen a not found find user by validate token which user not exist.")
+		{
+			userFind, err := newStore.UserFindByValidationToken(faker.RandomString(16))
+
+			assert.Empty(t, userFind)
+			assert.Error(t, errors.ErrElementNotExist, err)
+		}
+
+		t.Logf("\tWhen a not found find user by validate token which format email is wrong.")
+		{
+			userFind, err := newStore.UserFindByValidationToken("")
+
+			assert.Empty(t, userFind)
+			assert.Error(t, errors.ErrElementNotExist, err)
+
+			userFind, err = newStore.UserFindByValidationToken(faker.RandomString(16))
+
+			assert.Empty(t, userFind)
+			assert.Error(t, errors.ErrElementNotExist, err)
+		}
+	}
+}
+
 func TestUserUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -111,14 +156,14 @@ func TestUserUpdate(t *testing.T) {
 			assert.Nil(t, newStore.UserUpdate(user))
 		}
 
-		t.Logf("\tWhen a fail user update where user not exist.")
+		t.Logf("\tWhen a fail user update when user not exist.")
 		{
 			user := tt.NewUser(testName)
 
 			assert.Error(t, errors.ErrElementNotExist, newStore.UserUpdate(user))
 		}
 
-		t.Logf("\tWhen a fail user update where fields are wrong.")
+		t.Logf("\tWhen a fail user update when fields are wrong.")
 		{
 			user := tt.UserCreate(t, newStore, testName)
 			user.Language = faker.RandomChoice([]string{"en", "es", "fr", "pt"})

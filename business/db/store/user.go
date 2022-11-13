@@ -36,6 +36,22 @@ func (s *Store) UserFindByEmail(email string) (models.User, error) {
 	return user, nil
 }
 
+// UserFindByValidationToken search user by validation token.
+func (s *Store) UserFindByValidationToken(validationToken string) (models.User, error) {
+	var user models.User
+
+	res, err := s.engine.Where("validation_token = ?", validationToken).Get(&user)
+	if err != nil {
+		return user, db.TranslatePsqlError(s.log, err)
+	}
+
+	if !res {
+		return user, errors2.ErrElementNotExist
+	}
+
+	return user, nil
+}
+
 // UserUpdate updates user.
 func (s *Store) UserUpdate(user models.User) error {
 	update, err := s.engine.UseBool().ID(user.ID).Update(&user)

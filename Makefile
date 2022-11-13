@@ -39,6 +39,13 @@ stop-redis-test:
 	docker stop redisTest
 	docker rm redisTest
 
+# RUN SERVICE FAKEMAILER
+start-fakemailer-test:
+	docker pull circutor/fakemailer:latest
+	docker run --name fakemailer -p 25:25  -p 4301:4301 -d circutor/fakemailer:latest
+stop-fakemailer-test:
+	docker stop fakemailer
+	docker rm fakemailer
 
 # Goose Postgres.
 goose-status:
@@ -55,7 +62,7 @@ test:
 	go vet ./...
 	gofmt -l .
 
-test-local: start-postgres-test start-redis-test goose-up stop-postgres-test stop-redis-test
+test-local: start-postgres-test start-redis-test start-fakemailer-test goose-up test stop-postgres-test stop-redis-test stop-fakemailer-test
 
 # Run Local.
 run-simulator-api:

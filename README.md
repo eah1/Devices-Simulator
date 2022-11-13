@@ -66,7 +66,7 @@ Run tests:
 
 * Now we can run the test assigning the previous variables:
 
-      make test
+      make test-local POSTGRES_URI=MYC_DEVICES_SIMULATOR
 
 Set a a configuration file:
 
@@ -86,9 +86,9 @@ Prepare environment:
     make kind-up
     make all
     make kind-load
-    make kind-apply-bd
+    make kind-apply-db
+    make kind-apply-redis
     make kind-db-migration
-    make kind-apply-simulator-api
 
 Please not that postgres inside kind is mapped to port 5432, and Postgres used for local tests is mapped in port 5430.
 
@@ -108,7 +108,7 @@ When developing you can use both kind or local environment
     make test POSTGRES_URI=MYC_DEVICES_SIMULATOR
     make start-postgres-test
     make goose-up POSTGRES_URI=$MYC_DEVICES_SIMULATOR_DBPOSTGRES
-    make run-myc-devices-simulator
+    make run-simulator-api
 
 ### Run kind
 

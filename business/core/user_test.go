@@ -3,10 +3,10 @@ package core_test
 import (
 	"device-simulator/business/core"
 	"device-simulator/business/db/store"
-	errors2 "device-simulator/business/sys/errors"
-	tt "device-simulator/foundation/test"
 	"testing"
 
+	errors2 "device-simulator/business/sys/errors"
+	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 )
@@ -79,7 +79,6 @@ func TestUserCreateValidationToken(t *testing.T) {
 		{
 			user := tt.UserCreate(t, newStore, testName)
 
-			assert.Equal(t, "", user.ValidationToken)
 			assert.Nil(t, newCore.User.CreateValidationToken(&user))
 			assert.Equal(t, 16, len(user.ValidationToken))
 		}
@@ -88,9 +87,52 @@ func TestUserCreateValidationToken(t *testing.T) {
 		{
 			user := tt.NewUser(testName)
 
-			assert.Equal(t, "", user.ValidationToken)
 			assert.Error(t, errors2.ErrElementNotExist, newCore.User.CreateValidationToken(&user))
 			assert.Equal(t, "", user.ValidationToken)
+		}
+	}
+}
+
+func TestUserActivate(t *testing.T) {
+	t.Parallel()
+
+	testName := "core-user-activate"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newCore := core.NewCore(newLog, newConfig, newStore, nil)
+
+	t.Log("Given the need to work with a activate user.")
+	{
+		t.Logf("\tWhen a correct validate user.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+
+			assert.False(t, user.Validated)
+			assert.Nil(t, newCore.User.Activate(&user))
+			assert.True(t, user.Validated)
+		}
+
+		t.Logf("\tWhen a failed validate user when user not exist.")
+		{
+			user := tt.NewUser(testName)
+
+			assert.False(t, user.Validated)
+			assert.Error(t, errors2.ErrElementNotExist, newCore.User.Activate(&user))
+			assert.False(t, user.Validated)
+		}
+
+		t.Logf("\tWhen a failed when user is activate")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+
+			assert.False(t, user.Validated)
+			assert.Nil(t, newCore.User.Activate(&user))
+			assert.True(t, user.Validated)
+
+			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.Activate(&user))
 		}
 	}
 }
@@ -119,7 +161,7 @@ func TestUserFindByEmail(t *testing.T) {
 			assert.Nil(t, err)
 		}
 
-		t.Logf("\tWhen a failed find user by email where email not exist.")
+		t.Logf("\tWhen a failed find user by email when email not exist.")
 		{
 			userFind, err := newCore.User.FindByEmail(faker.Internet().Email())
 
@@ -127,7 +169,7 @@ func TestUserFindByEmail(t *testing.T) {
 			assert.Error(t, errors2.ErrElementNotExist, err)
 		}
 
-		t.Logf("\tWhen a failed find user by email where email wrong format.")
+		t.Logf("\tWhen a failed find user by email when email wrong format.")
 		{
 			userFind, err := newCore.User.FindByEmail("")
 
@@ -135,6 +177,53 @@ func TestUserFindByEmail(t *testing.T) {
 			assert.Error(t, errors2.ErrElementNotExist, err)
 
 			userFind, err = newCore.User.FindByEmail(faker.RandomString(20))
+
+			assert.Empty(t, userFind)
+			assert.Error(t, errors2.ErrElementNotExist, err)
+		}
+	}
+}
+
+func TestFindByValidationToken(t *testing.T) {
+	t.Parallel()
+
+	testName := "core-user-find-by-validation-token"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newCore := core.NewCore(newLog, newConfig, newStore, nil)
+
+	t.Log("Given the need to work with a find user by validation token.")
+	{
+		t.Logf("\tWhen a correct find user by validation token.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+
+			userFind, err := newCore.User.FindByValidationToken(user.ValidationToken)
+
+			assert.Equal(t, user.ID, userFind.ID)
+			assert.Equal(t, user.ValidationToken, userFind.ValidationToken)
+			assert.Nil(t, err)
+		}
+
+		t.Logf("\tWhen a failed find user by validation token when token not exist.")
+		{
+			userFind, err := newCore.User.FindByValidationToken(faker.RandomString(16))
+
+			assert.Empty(t, userFind)
+			assert.Error(t, errors2.ErrElementNotExist, err)
+		}
+
+		t.Logf("\tWhen a failed find user by validation token when token wrong format.")
+		{
+			userFind, err := newCore.User.FindByValidationToken("")
+
+			assert.Empty(t, userFind)
+			assert.Error(t, errors2.ErrElementNotExist, err)
+
+			userFind, err = newCore.User.FindByValidationToken(faker.RandomString(16))
 
 			assert.Empty(t, userFind)
 			assert.Error(t, errors2.ErrElementNotExist, err)

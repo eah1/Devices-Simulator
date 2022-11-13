@@ -33,6 +33,7 @@ func NewUserServiceGroup(app *echo.Group, prefix string, handlers User) {
 	users := app.Group(prefix)
 
 	users.POST("", handlers.Create)
+	users.POST("/activate/:activateToken", handlers.Activate)
 }
 
 // Create user create EndPoint.
@@ -77,4 +78,28 @@ func (h User) Create(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusCreated, responses.Success{Status: "OK"})
+}
+
+// Activate user activation EndPoint.
+// @Summary Activate user activation EndPoint
+// @Tags Users
+// @Description Activation a user in the system.
+// @Param activateToken   path      string  true  "ActivateToken"
+// @Produce json
+// @Success 200 {object} responses.Success
+// @Failure 400 {object} responses.Validator
+// @Failure 401 {object} responses.Failed
+// @Failure 500 {object} responses.Failed
+// @Router /api/v1/users/activate/{activateToken} [post].
+func (h User) Activate(ctx echo.Context) error {
+	activateToken := ctx.Param("activateToken")
+
+	if err := h.usecase.ActivateUser(activateToken); err != nil {
+		h.cfg.Log.Errorw("Activate -> ActivateUser",
+			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
+
+		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+	}
+
+	return ctx.JSON(http.StatusOK, responses.Success{Status: "OK"})
 }

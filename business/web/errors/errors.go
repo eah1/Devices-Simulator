@@ -18,6 +18,8 @@ func HandlingError(err error, log *zap.SugaredLogger) (int, responses.Failed) {
 		return http.StatusConflict, responses.Failed{Status: "ERROR", Error: err.Error()}
 	case errorsMyc.ErrElementRequest:
 		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: err.Error()}
+	case errorsMyc.ErrAuthenticationFailed:
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
 	default:
 		log.Error(err)
 		sentryGo.CaptureException(err)

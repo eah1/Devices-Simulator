@@ -90,6 +90,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/users/activate/{activateToken}": {
+            "post": {
+                "description": "Activation a user in the system.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Activate user activation EndPoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ActivateToken",
+                        "name": "activateToken",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

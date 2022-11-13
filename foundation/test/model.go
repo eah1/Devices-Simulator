@@ -23,6 +23,8 @@ func NewUser(testName string) models.User {
 	user.LastName = faker.Name().LastName() + "_" + testName
 	user.Email = faker.Internet().Email()
 	user.Password = Hash()
+	user.Validated = false
+	user.ValidationToken = faker.RandomString(16)
 	user.Language = faker.RandomChoice([]string{"en", "es", "fr", "pt"})
 	user.Company = faker.Company().Name()
 

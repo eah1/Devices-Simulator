@@ -5,6 +5,7 @@ import (
 	"device-simulator/app/config"
 	"device-simulator/business/core/models"
 	"device-simulator/business/db/store"
+	errors2 "device-simulator/business/sys/errors"
 	"device-simulator/foundation"
 
 	"github.com/google/uuid"
@@ -84,11 +85,44 @@ func (c *UserCore) CreateValidationToken(user *models.User) error {
 	return nil
 }
 
+// Activate user activate in the system.
+func (c *UserCore) Activate(user *models.User) error {
+	if user.Validated {
+		return errors2.ErrAuthenticationFailed
+	}
+
+	user.Validated = true
+
+	if err := c.store.UserUpdate(*user); err != nil {
+		c.log.Errorw("Activate error to Update user",
+			"service", "CORE | USER", "error", err.Error())
+
+		user.Validated = false
+
+		return err
+	}
+
+	return nil
+}
+
 // FindByEmail search user by email field.
 func (c *UserCore) FindByEmail(email string) (models.User, error) {
 	user, err := c.store.UserFindByEmail(email)
 	if err != nil {
 		c.log.Errorw("FindByEmail error",
+			"service", "CORE | USER", "error", err.Error())
+
+		return user, err
+	}
+
+	return user, nil
+}
+
+// FindByValidationToken search user by validation token field.
+func (c *UserCore) FindByValidationToken(validationToken string) (models.User, error) {
+	user, err := c.store.UserFindByValidationToken(validationToken)
+	if err != nil {
+		c.log.Errorw("FindByValidationToken error",
 			"service", "CORE | USER", "error", err.Error())
 
 		return user, err

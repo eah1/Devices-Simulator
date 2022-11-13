@@ -37,13 +37,15 @@ func NewEmailSenderCore(
 func (c *EmailSenderCore) SendValidationEmail(email, validationToken, language string) error {
 	receiver := []string{email}
 
+	urlValidation := "/api/v1/users/activate/"
+
 	emailType := "account-validation"
 	template := language + "/account-validation.html"
 	title := emailConfig.Subject(emailType, language)
 
 	data := struct {
 		Email, ValidationURI string
-	}{Email: email, ValidationURI: validationToken}
+	}{Email: email, ValidationURI: c.config.BaseURL + urlValidation + validationToken}
 
 	emailStructure := emailsender.NewEmailStructure(
 		c.emailSender, emailType, title, template, c.config.SMTPFrom, receiver, data, c.log)

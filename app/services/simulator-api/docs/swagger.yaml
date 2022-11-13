@@ -123,4 +123,35 @@ paths:
       summary: Create user registration EndPoint
       tags:
       - Users
+  /api/v1/users/activate/{activateToken}:
+    post:
+      description: Activation a user in the system.
+      parameters:
+      - description: ActivateToken
+        in: path
+        name: activateToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      summary: Activate user activation EndPoint
+      tags:
+      - Users
 swagger: "2.0"

@@ -37,4 +37,5 @@ func NewUseCase(
 type User interface {
 	RegisterUser(userRegister webmodels.RegisterUser) error
 	SendValidationEmail(email string) error
+	ActivateUser(activateToken string) error
 }
