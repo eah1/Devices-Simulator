@@ -3,10 +3,10 @@ package core_test
 import (
 	"device-simulator/business/core"
 	"device-simulator/business/db/store"
-	errors2 "device-simulator/business/sys/errors"
-	tt "device-simulator/foundation/test"
 	"testing"
 
+	errors2 "device-simulator/business/sys/errors"
+	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 )

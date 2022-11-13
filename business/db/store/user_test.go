@@ -3,9 +3,9 @@ package store_test
 import (
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/errors"
-	tt "device-simulator/foundation/test"
 	"testing"
 
+	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 )
