@@ -25,5 +25,6 @@ func NewStore(log *zap.SugaredLogger, engine *xorm.Engine) Store {
 type SQL interface {
 	UserCreate(user models.User) error
 	UserFindByEmail(email string) (models.User, error)
+	UserFindByValidationToken(validationToken string) (models.User, error)
 	UserUpdate(user models.User) error
 }
