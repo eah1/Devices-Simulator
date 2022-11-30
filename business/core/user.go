@@ -7,7 +7,6 @@ import (
 	"device-simulator/business/db/store"
 	errors2 "device-simulator/business/sys/errors"
 	"device-simulator/foundation"
-
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -43,6 +42,15 @@ func (c *UserCore) GeneratePassword(password string, user *models.User) error {
 	}
 
 	user.Password = string(hash)
+
+	return nil
+}
+
+// CheckCredentials compare password hash from password in database.
+func (c *UserCore) CheckCredentials(user models.User, password string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return errors2.ErrAuthenticationFailed
+	}
 
 	return nil
 }
@@ -100,6 +108,15 @@ func (c *UserCore) Activate(user *models.User) error {
 		user.Validated = false
 
 		return err
+	}
+
+	return nil
+}
+
+// IsActivate check user is activate.
+func (c *UserCore) IsActivate(user models.User) error {
+	if !user.Validated {
+		return errors2.ErrAuthenticationFailed
 	}
 
 	return nil

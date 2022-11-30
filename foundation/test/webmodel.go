@@ -2,7 +2,6 @@ package test_test
 
 import (
 	"device-simulator/business/web/webmodels"
-
 	"syreclabs.com/go/faker"
 )
 

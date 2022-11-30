@@ -4,13 +4,13 @@ package emailsender
 import (
 	"bytes"
 	"crypto/tls"
+	"device-simulator/app/config"
 	"fmt"
 	"html/template"
 	"net"
 	"net/smtp"
 	"strconv"
 
-	"device-simulator/app/config"
 	"github.com/getsentry/sentry-go"
 	"github.com/jhillyerd/enmime"
 	"github.com/pkg/errors"

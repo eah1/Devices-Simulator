@@ -6,6 +6,7 @@ import (
 	"device-simulator/app/services/simulator-queue/handlertasks"
 	"device-simulator/business/core"
 	"device-simulator/business/db/store"
+
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
 	"xorm.io/xorm"

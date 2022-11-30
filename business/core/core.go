@@ -4,7 +4,6 @@ package core
 import (
 	"device-simulator/app/config"
 	"device-simulator/business/db/store"
-
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
 )
@@ -13,6 +12,7 @@ import (
 type Core struct {
 	User        UserCore
 	EmailSender EmailSenderCore
+	Auth        AuthCore
 }
 
 // NewCore constructs a core group.
@@ -20,10 +20,12 @@ func NewCore(log *zap.SugaredLogger, config config.Config, store store.Store, em
 	core := &Core{
 		User:        NewUserCore(log, config, store, nil),
 		EmailSender: NewEmailSenderCore(log, config, store, emailSender, nil),
+		Auth:        NewAuthCore(log, config, nil),
 	}
 
 	return Core{
 		User:        NewUserCore(log, config, store, core),
 		EmailSender: NewEmailSenderCore(log, config, store, emailSender, core),
+		Auth:        NewAuthCore(log, config, core),
 	}
 }

@@ -1,15 +1,15 @@
 package v1_test
 
 import (
+	"encoding/json"
+	"net/http"
+	"testing"
+
 	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/binder"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
-	"encoding/json"
-	"net/http"
-	"testing"
-
 	tt "device-simulator/foundation/test"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -96,7 +96,7 @@ func TestUserCreate(t *testing.T) {
 			assert.Equal(t, "ERROR", validator.Status)
 		}
 
-		t.Logf("\tWhen we send a nil body")
+		t.Logf("\tWhen we send a nil body.")
 		{
 			validator := new(responses.Validator)
 
@@ -124,7 +124,7 @@ func TestUserCreate(t *testing.T) {
 			assert.Equal(t, "OK", success.Status)
 		}
 
-		t.Logf("\tWhen a duplicate user")
+		t.Logf("\tWhen a duplicate user.")
 		{
 			success := new(responses.Success)
 			failed := new(responses.Failed)

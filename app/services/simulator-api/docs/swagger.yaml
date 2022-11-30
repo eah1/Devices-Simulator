@@ -28,6 +28,14 @@ definitions:
         example: OK
         type: string
     type: object
+  responses.SuccessLogin:
+    properties:
+      status:
+        example: OK
+        type: string
+      token:
+        type: string
+    type: object
   responses.Validator:
     properties:
       details:
@@ -37,6 +45,16 @@ definitions:
       status:
         example: ERROR
         type: string
+    type: object
+  webmodels.LoginUser:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
     type: object
   webmodels.RegisterUser:
     properties:
@@ -89,6 +107,44 @@ paths:
       summary: Health check EndPoint
       tags:
       - Health
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login authentication user in platform
+      parameters:
+      - description: LoginUser
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.SuccessLogin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      summary: Login user EndPoint
+      tags:
+      - Auth
   /api/v1/users:
     post:
       consumes:

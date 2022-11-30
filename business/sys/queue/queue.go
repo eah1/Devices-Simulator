@@ -2,9 +2,9 @@
 package queue
 
 import (
+	"device-simulator/app/config"
 	"time"
 
-	"device-simulator/app/config"
 	"github.com/hibiken/asynq"
 	"go.uber.org/zap"
 )

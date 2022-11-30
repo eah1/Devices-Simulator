@@ -1,12 +1,11 @@
 package usecase_test
 
 import (
-	"device-simulator/business/db/store"
-	"device-simulator/business/usecase"
 	"testing"
 
+	"device-simulator/business/db/store"
 	errors2 "device-simulator/business/sys/errors"
-
+	"device-simulator/business/usecase"
 	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

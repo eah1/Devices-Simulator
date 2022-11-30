@@ -96,6 +96,9 @@ func LoadConfigEnvironments() (Config, error) {
 	_ = viper.BindEnv("SMTPFROM")
 	_ = viper.BindEnv("TEMPLATEFOLDER")
 
+	// env jwt key.
+	_ = viper.BindEnv("SECRETKEY")
+
 	if err := viper.Unmarshal(&config); err != nil {
 		return config, errors.Wrap(err, "unable to decode into struct")
 	}

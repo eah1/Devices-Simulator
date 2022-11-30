@@ -10,3 +10,9 @@ type RegisterUser struct {
 	Company   string `json:"company"   conform:"trim" validate:"required"`
 	Language  string `json:"language"  conform:"trim" validate:"required,oneof=es en fr pt,max=2"`
 }
+
+// LoginUser contains information needed to create a login User.
+type LoginUser struct {
+	Username string `json:"username" conform:"trim" validate:"required,email"`
+	Password string `json:"password" conform:"trim" validate:"required,min=8,max=64,printascii"`
+}

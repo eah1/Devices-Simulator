@@ -2,9 +2,9 @@
 package db
 
 import (
+	"device-simulator/app/config"
 	"time"
 
-	"device-simulator/app/config"
 	errors2 "device-simulator/business/sys/errors"
 	goSentry "github.com/getsentry/sentry-go"
 	"github.com/jackc/pgconn"
