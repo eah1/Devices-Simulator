@@ -6,7 +6,6 @@ import (
 	"device-simulator/business/core"
 	"device-simulator/business/db/store"
 	"device-simulator/business/web/webmodels"
-
 	"github.com/hibiken/asynq"
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
@@ -38,4 +37,9 @@ type User interface {
 	RegisterUser(userRegister webmodels.RegisterUser) error
 	SendValidationEmail(email string) error
 	ActivateUser(activateToken string) error
+}
+
+// Auth methods auth use case.
+type Auth interface {
+	Login(userLogin webmodels.LoginUser) (string, error)
 }

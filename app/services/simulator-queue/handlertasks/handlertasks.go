@@ -3,12 +3,12 @@ package handlertasks
 
 import (
 	"context"
-	"device-simulator/app/config"
-	"device-simulator/business/core"
-	"device-simulator/business/task/models"
 	"encoding/json"
 	"fmt"
 
+	"device-simulator/app/config"
+	"device-simulator/business/core"
+	"device-simulator/business/task/models"
 	"github.com/hibiken/asynq"
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"

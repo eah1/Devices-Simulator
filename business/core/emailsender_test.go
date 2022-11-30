@@ -1,10 +1,10 @@
 package core_test
 
 import (
-	"device-simulator/business/core"
-	"device-simulator/business/db/store"
 	"testing"
 
+	"device-simulator/business/core"
+	"device-simulator/business/db/store"
 	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"

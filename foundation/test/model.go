@@ -2,6 +2,7 @@ package test_test
 
 import (
 	"device-simulator/business/core/models"
+	"device-simulator/business/sys/auth"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -29,4 +30,14 @@ func NewUser(testName string) models.User {
 	user.Company = faker.Company().Name()
 
 	return *user
+}
+
+// NewCustomClaims created new custom claims.
+func NewCustomClaims(testName string) auth.CustomClaims {
+	claims := new(auth.CustomClaims)
+	claims.StandardClaims = auth.NewStandardClaims()
+	claims.ID = uuid.NewString()
+	claims.Email = testName + faker.RandomString(10) + "@" + faker.Internet().DomainName()
+
+	return *claims
 }

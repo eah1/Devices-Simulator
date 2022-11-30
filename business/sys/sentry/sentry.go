@@ -2,9 +2,9 @@
 package sentry
 
 import (
-	"device-simulator/app/config"
 	"strings"
 
+	"device-simulator/app/config"
 	"github.com/getsentry/sentry-go"
 )
 
