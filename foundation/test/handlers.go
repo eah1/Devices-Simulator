@@ -2,15 +2,15 @@ package test_test
 
 import (
 	"device-simulator/business/db/store"
+	"device-simulator/business/sys/handler"
 	"device-simulator/business/web/responses"
 	"encoding/json"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
 
-	"device-simulator/business/sys/handler"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -36,6 +36,8 @@ func InitHandlerConfig(t *testing.T, service string) handler.HandlerConfig {
 }
 
 func RegisterUser(t *testing.T, app *echo.Echo, testName string) (string, string) {
+	t.Helper()
+
 	headers := map[string]string{
 		"Content-Type": "application/json; charset=utf-8",
 	}
@@ -57,6 +59,8 @@ func RegisterUser(t *testing.T, app *echo.Echo, testName string) (string, string
 }
 
 func ValidationUser(t *testing.T, app *echo.Echo, newStore store.Store, email string) {
+	t.Helper()
+
 	headers := map[string]string{
 		"Content-Type": "application/json; charset=utf-8",
 	}
@@ -66,7 +70,8 @@ func ValidationUser(t *testing.T, app *echo.Echo, newStore store.Store, email st
 	require.NoError(t, err)
 
 	// Validate user.
-	_, rec := MakeRequest(t, NewRequestTest(app, http.MethodPost, usersActivateURI+userDB.ValidationToken, nil, headers, nil))
+	_, rec := MakeRequest(t, NewRequestTest(app, http.MethodPost,
+		usersActivateURI+userDB.ValidationToken, nil, headers, nil))
 
 	success := new(responses.Success)
 

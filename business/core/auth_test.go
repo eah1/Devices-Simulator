@@ -31,5 +31,4 @@ func TestAuthGenerateToken(t *testing.T) {
 			assert.Nil(t, err)
 		}
 	}
-
 }
