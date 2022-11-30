@@ -2,9 +2,8 @@
 package models
 
 import (
-	"time"
-
 	"device-simulator/business/web/webmodels"
+	"time"
 )
 
 // User represents the structure we need for moving data.

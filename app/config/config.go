@@ -23,5 +23,6 @@ type Config struct {
 	SMTPPort         string
 	SMTPNetwork      string
 	SMTPFrom         string
+	SecretKey        string
 	TemplateFolder   string
 }

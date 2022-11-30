@@ -1,11 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"strings"
-	"time"
-
 	"device-simulator/app/config"
 	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/sys/binder"
@@ -14,6 +9,11 @@ import (
 	"device-simulator/business/sys/logger"
 	"device-simulator/business/sys/sentry"
 	"device-simulator/business/web/middlewares/common"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	goSentry "github.com/getsentry/sentry-go"
 	echoSentry "github.com/getsentry/sentry-go/echo"
 	"github.com/hibiken/asynq"

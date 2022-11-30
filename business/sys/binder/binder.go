@@ -1,9 +1,9 @@
 package binder
 
 import (
-	"device-simulator/business/web/validator"
 	"strings"
 
+	"device-simulator/business/web/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/leebenson/conform"
 	"github.com/pkg/errors"

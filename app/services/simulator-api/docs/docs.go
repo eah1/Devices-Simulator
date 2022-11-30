@@ -39,6 +39,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/login": {
+            "post": {
+                "description": "Login authentication user in platform",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login user EndPoint",
+                "parameters": [
+                    {
+                        "description": "LoginUser",
+                        "name": "User",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webmodels.LoginUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessLogin"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users": {
             "post": {
                 "description": "Create a new user in the system.",
@@ -182,6 +240,18 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.SuccessLogin": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "responses.Validator": {
             "type": "object",
             "properties": {
@@ -194,6 +264,21 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "ERROR"
+                }
+            }
+        },
+        "webmodels.LoginUser": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

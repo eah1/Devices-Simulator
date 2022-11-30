@@ -2,11 +2,10 @@
 package errors
 
 import (
-	"device-simulator/business/web/responses"
 	"net/http"
 
 	errorsMyc "device-simulator/business/sys/errors"
-
+	"device-simulator/business/web/responses"
 	sentryGo "github.com/getsentry/sentry-go"
 	"go.uber.org/zap"
 )
@@ -19,6 +18,8 @@ func HandlingError(err error, log *zap.SugaredLogger) (int, responses.Failed) {
 	case errorsMyc.ErrElementRequest:
 		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: err.Error()}
 	case errorsMyc.ErrAuthenticationFailed:
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
+	case errorsMyc.ErrElementNotExist:
 		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
 	default:
 		log.Error(err)

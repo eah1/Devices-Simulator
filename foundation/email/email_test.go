@@ -1,9 +1,9 @@
 package email_test
 
 import (
-	"device-simulator/foundation/email"
 	"testing"
 
+	"device-simulator/foundation/email"
 	"github.com/stretchr/testify/assert"
 )
 

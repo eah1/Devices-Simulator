@@ -6,6 +6,7 @@ import (
 	"device-simulator/app/services/simulator-api/handlers/health"
 	v1 "device-simulator/app/services/simulator-api/handlers/v1"
 	"device-simulator/business/sys/handler"
+
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )

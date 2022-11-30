@@ -1,12 +1,12 @@
 package health_test
 
 import (
-	"device-simulator/app/services/simulator-api/handlers"
-	"device-simulator/business/web/responses"
 	"encoding/json"
 	"net/http"
 	"testing"
 
+	"device-simulator/app/services/simulator-api/handlers"
+	"device-simulator/business/web/responses"
 	tt "device-simulator/foundation/test"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"

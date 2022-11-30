@@ -1,8 +1,21 @@
 package test_test
 
 import (
-	"device-simulator/business/sys/handler"
+	"device-simulator/business/db/store"
+	"device-simulator/business/web/responses"
+	"encoding/json"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"net/http"
 	"testing"
+
+	"device-simulator/business/sys/handler"
+)
+
+const (
+	usersURI         = "/api/v1/users"
+	usersActivateURI = "/api/v1/users/activate/"
 )
 
 // InitHandlerConfig create a config handler.
@@ -20,4 +33,46 @@ func InitHandlerConfig(t *testing.T, service string) handler.HandlerConfig {
 	handlerConfig.ClientQueue = InitClientQueue(t, handlerConfig.Config)
 
 	return *handlerConfig
+}
+
+func RegisterUser(t *testing.T, app *echo.Echo, testName string) (string, string) {
+	headers := map[string]string{
+		"Content-Type": "application/json; charset=utf-8",
+	}
+
+	// Register new user.
+	registerUser := NewRegistrationUser(testName)
+
+	_, rec := MakeRequest(t, NewRequestTest(app, http.MethodPost, usersURI, registerUser, headers, nil))
+
+	success := new(responses.Success)
+
+	err := json.Unmarshal(rec.Body.Bytes(), &success)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusCreated, rec.Code)
+	assert.Equal(t, "OK", success.Status)
+
+	return registerUser.Email, registerUser.Password
+}
+
+func ValidationUser(t *testing.T, app *echo.Echo, newStore store.Store, email string) {
+	headers := map[string]string{
+		"Content-Type": "application/json; charset=utf-8",
+	}
+
+	// find user in database.
+	userDB, err := newStore.UserFindByEmail(email)
+	require.NoError(t, err)
+
+	// Validate user.
+	_, rec := MakeRequest(t, NewRequestTest(app, http.MethodPost, usersActivateURI+userDB.ValidationToken, nil, headers, nil))
+
+	success := new(responses.Success)
+
+	err = json.Unmarshal(rec.Body.Bytes(), &success)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "OK", success.Status)
 }

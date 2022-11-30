@@ -1,10 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"strings"
-
 	"device-simulator/app/config"
 	"device-simulator/business/sys/db"
 	"device-simulator/business/sys/emailsender"
@@ -13,6 +9,10 @@ import (
 	"device-simulator/business/sys/queue"
 	"device-simulator/business/sys/sentry"
 	"device-simulator/business/task"
+	"fmt"
+	"os"
+	"strings"
+
 	goSentry "github.com/getsentry/sentry-go"
 	"github.com/hibiken/asynq"
 	"go.uber.org/zap"

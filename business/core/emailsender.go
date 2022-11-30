@@ -6,7 +6,6 @@ import (
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/emailsender"
 	emailConfig "device-simulator/foundation/email"
-
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
 )

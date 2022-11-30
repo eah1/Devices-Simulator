@@ -3,7 +3,6 @@ package translation
 
 import (
 	"device-simulator/business/web/validator/config"
-
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"

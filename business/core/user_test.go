@@ -1,10 +1,10 @@
 package core_test
 
 import (
-	"device-simulator/business/core"
-	"device-simulator/business/db/store"
 	"testing"
 
+	"device-simulator/business/core"
+	"device-simulator/business/db/store"
 	errors2 "device-simulator/business/sys/errors"
 	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
@@ -29,6 +29,34 @@ func TestUserGeneratePassword(t *testing.T) {
 			user := tt.NewUser(testName)
 			assert.Nil(t, newCore.User.GeneratePassword(faker.Internet().Password(8, 62), &user))
 			assert.Nil(t, newCore.User.GeneratePassword("", &user))
+		}
+	}
+}
+
+func TestUserCheckCredentials(t *testing.T) {
+	t.Parallel()
+
+	testName := "core-user_check-credentials"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newCore := core.NewCore(newLog, newConfig, newStore, nil)
+
+	t.Log("Given the need to work with check credentials.")
+	{
+		t.Logf("\tWhen a correct check password.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+			assert.Nil(t, newCore.User.Activate(&user))
+			assert.Nil(t, newCore.User.IsActivate(user))
+		}
+
+		t.Logf("\tWhen a wrong check password.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.IsActivate(user))
 		}
 	}
 }
@@ -133,6 +161,33 @@ func TestUserActivate(t *testing.T) {
 			assert.True(t, user.Validated)
 
 			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.Activate(&user))
+		}
+	}
+}
+
+func TestUserIsActivate(t *testing.T) {
+	t.Parallel()
+
+	testName := "core-user-is_activate"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newCore := core.NewCore(newLog, newConfig, newStore, nil)
+
+	t.Log("Given the need to work check is validate a user.")
+	{
+		t.Logf("\tWhen a correct validate.")
+		{
+			user := tt.NewUser(testName)
+			assert.Nil(t, newCore.User.CheckCredentials(user, "password"))
+		}
+
+		t.Logf("\tWhen a wrong validate.")
+		{
+			user := tt.NewUser(testName)
+			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.CheckCredentials(user, faker.RandomString(20)))
 		}
 	}
 }

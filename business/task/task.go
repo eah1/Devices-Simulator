@@ -2,10 +2,10 @@
 package task
 
 import (
+	"device-simulator/business/task/models"
 	"encoding/json"
 	"fmt"
 
-	"device-simulator/business/task/models"
 	"github.com/hibiken/asynq"
 )
 
