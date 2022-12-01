@@ -3,13 +3,17 @@ package test_test
 import (
 	"device-simulator/business/core/models"
 	"device-simulator/business/sys/auth"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"syreclabs.com/go/faker"
 )
 
-const sizeRandom = 18
+const (
+	sizeRandom  = 18
+	tokenRandom = 200
+)
 
 // NewUser created new user model.
 func NewUser(testName string) models.User {
@@ -37,4 +41,16 @@ func NewCustomClaims(testName string) auth.CustomClaims {
 	claims.Email = testName + faker.RandomString(sizeRandom) + "@" + faker.Internet().DomainName()
 
 	return *claims
+}
+
+// NewAuthentication created new authentication model.
+func NewAuthentication(testName, userID string) models.Authentication {
+	authentication := new(models.Authentication)
+	authentication.ID = uuid.NewString()
+	authentication.Token = testName + "_" + faker.RandomString(tokenRandom)
+	authentication.UserID = userID
+	authentication.Valid = true
+	authentication.LoginAt = time.Now()
+
+	return *authentication
 }

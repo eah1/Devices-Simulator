@@ -19,3 +19,15 @@ func UserCreate(t *testing.T, store store.Store, testName string) models.User {
 
 	return user
 }
+
+// AuthenticationCreate create a authentication in database.
+func AuthenticationCreate(t *testing.T, store store.Store, testName, userID string) models.Authentication {
+	t.Helper()
+
+	authentication := NewAuthentication(testName, userID)
+
+	err := store.AuthenticationCreate(authentication)
+	require.NoError(t, err)
+
+	return authentication
+}
