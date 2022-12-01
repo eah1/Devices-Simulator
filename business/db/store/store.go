@@ -2,7 +2,6 @@
 package store
 
 import (
-	"device-simulator/business/core/models"
 	"go.uber.org/zap"
 	"xorm.io/xorm"
 )
@@ -19,11 +18,4 @@ func NewStore(log *zap.SugaredLogger, engine *xorm.Engine) Store {
 		log:    log,
 		engine: engine,
 	}
-}
-
-type SQL interface {
-	UserCreate(user models.User) error
-	UserFindByEmail(email string) (models.User, error)
-	UserFindByValidationToken(validationToken string) (models.User, error)
-	UserUpdate(user models.User) error
 }

@@ -66,6 +66,8 @@ spec:
               value: "tcp"
             - name: MYC_DEVICES_SIMULATOR_SMTPFROM
               value: "no-reply@circutor.com"
+            - name: MYC_DEVICES_SIMULATOR_SECRETKEY
+              value: "JpQm~_%V*wc1al{I>[(9])e)GL;Zj>@o|HH9r],<zP_#qaHX`+6cuQu3;{^GTqo"
             - name: MYC_DEVICES_SIMULATOR_TEMPLATEFOLDER
               value: "business/template/"
           ports:

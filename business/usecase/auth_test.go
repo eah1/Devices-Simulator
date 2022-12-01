@@ -2,7 +2,7 @@ package usecase_test
 
 import (
 	"device-simulator/business/db/store"
-	errors2 "device-simulator/business/sys/errors"
+	mycErrors "device-simulator/business/sys/errors"
 	"device-simulator/business/usecase"
 	"device-simulator/business/web/webmodels"
 	tt "device-simulator/foundation/test"
@@ -87,7 +87,7 @@ func TestUseCaseLogin(t *testing.T) {
 			token, err := newUseCase.Login(loginWebModel)
 
 			assert.Equal(t, "", token)
-			assert.Error(t, errors2.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
 		t.Logf("\tWhen a failed login authoritzation when password not correct.")
@@ -118,7 +118,7 @@ func TestUseCaseLogin(t *testing.T) {
 			token, err := newUseCase.Login(loginWebModel)
 
 			assert.Equal(t, "", token)
-			assert.Error(t, errors2.ErrAuthenticationFailed, err)
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, err)
 		}
 
 		t.Logf("\tWhen a failed login authoritzation when user not validate.")
@@ -134,7 +134,7 @@ func TestUseCaseLogin(t *testing.T) {
 			token, err := newUseCase.Login(loginWebModel)
 
 			assert.Equal(t, "", token)
-			assert.Error(t, errors2.ErrAuthenticationFailed, err)
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, err)
 		}
 	}
 }

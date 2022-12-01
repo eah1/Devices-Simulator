@@ -2,11 +2,11 @@
 package health
 
 import (
+	"device-simulator/business/sys/handler"
+	"device-simulator/business/web/responses"
 	"net/http"
 	"os"
 
-	"device-simulator/business/sys/handler"
-	"device-simulator/business/web/responses"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 )

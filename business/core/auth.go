@@ -2,10 +2,10 @@
 package core
 
 import (
-	"fmt"
-
 	"device-simulator/app/config"
 	"device-simulator/business/sys/auth"
+	"fmt"
+
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 )
@@ -34,7 +34,7 @@ func (c *AuthCore) GenerateToken(claims auth.CustomClaims) (string, error) {
 	// Generate encoded token and send it as response.
 	str, err := token.SignedString([]byte(c.config.SecretKey))
 	if err != nil {
-		return "", fmt.Errorf("%w", err)
+		return "", fmt.Errorf("core.auth.GenerateToken.SignedString: %w", err)
 	}
 
 	return str, nil

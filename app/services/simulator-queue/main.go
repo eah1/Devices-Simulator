@@ -18,6 +18,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const retryDBMax = 5
+
 func main() {
 	// Create config env vars.
 	cfg, err := config.LoadConfig()
@@ -65,7 +67,7 @@ func run(log *zap.SugaredLogger, cfg config.Config) error {
 	// Create connectivity to the database.
 	host := cfg.DBPostgres[strings.Index(cfg.DBPostgres, "@")+1 : strings.LastIndex(cfg.DBPostgres, "/")]
 
-	database, err := db.Open(db.NewConfigDB(cfg), 5, log)
+	database, err := db.Open(db.NewConfigDB(cfg), retryDBMax, log)
 	if err != nil {
 		log.Errorf("database open: %s", err)
 

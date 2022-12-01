@@ -2,27 +2,64 @@
 package errors
 
 import (
+	mycDBErrors "device-simulator/business/db/errors"
+	mycErrors "device-simulator/business/sys/errors"
+	"device-simulator/business/web/responses"
+	"errors"
 	"net/http"
 
-	errorsMyc "device-simulator/business/sys/errors"
-	"device-simulator/business/web/responses"
 	sentryGo "github.com/getsentry/sentry-go"
 	"go.uber.org/zap"
 )
 
-// HandlingError error handling codes.
-func HandlingError(err error, log *zap.SugaredLogger) (int, responses.Failed) {
-	switch err {
-	case errorsMyc.ErrElementDuplicated:
-		return http.StatusConflict, responses.Failed{Status: "ERROR", Error: err.Error()}
-	case errorsMyc.ErrElementRequest:
+// ErrorHandlingUserCreate error handling user create codes.
+func ErrorHandlingUserCreate(err error, log *zap.SugaredLogger) (int, responses.Failed) {
+	log.Error(err)
+
+	var customError *mycDBErrors.PsqlError
+
+	switch {
+	case errors.Is(err, mycErrors.ErrElementNotExist):
 		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: err.Error()}
-	case errorsMyc.ErrAuthenticationFailed:
-		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
-	case errorsMyc.ErrElementNotExist:
+	case errors.As(err, &customError):
+		switch customError.CodeSQL {
+		case "23505":
+			return http.StatusConflict, responses.Failed{Status: "ERROR", Error: err.Error()}
+		default:
+			return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
+		}
+	default:
+		sentryGo.CaptureException(err)
+
+		return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
+	}
+}
+
+// ErrorHandlingUserActivate error handling user activate codes.
+func ErrorHandlingUserActivate(err error, log *zap.SugaredLogger) (int, responses.Failed) {
+	log.Error(err)
+
+	switch {
+	case errors.Is(err, mycErrors.ErrElementNotExist):
+		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: err.Error()}
+	case errors.Is(err, mycErrors.ErrAuthenticationFailed):
 		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
 	default:
-		log.Error(err)
+		sentryGo.CaptureException(err)
+
+		return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
+	}
+}
+
+// ErrorHandlingLogin error handling login codes.
+func ErrorHandlingLogin(err error, log *zap.SugaredLogger) (int, responses.Failed) {
+	log.Error(err)
+
+	switch {
+	case errors.Is(err, mycErrors.ErrElementNotExist) ||
+		errors.Is(err, mycErrors.ErrAuthenticationFailed):
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
+	default:
 		sentryGo.CaptureException(err)
 
 		return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}

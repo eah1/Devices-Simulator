@@ -3,12 +3,12 @@ package handlertasks
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-
 	"device-simulator/app/config"
 	"device-simulator/business/core"
 	"device-simulator/business/task/models"
+	"encoding/json"
+	"fmt"
+
 	"github.com/hibiken/asynq"
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
@@ -29,12 +29,12 @@ func (myc *MycSimulator) HandlerSendValidationEmail(_ context.Context, t *asynq.
 	var p models.SendValidationEmail
 
 	if err := json.Unmarshal(t.Payload(), &p); err != nil {
-		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
+		return fmt.Errorf("handlertasks.HandlerSendValidationEmail.Marshal: %v: %w", err, asynq.SkipRetry)
 	}
 
-	err := myc.Core.EmailSender.SendValidationEmail(p.Email, p.ValidationToken, p.Language)
-	if err != nil {
-		return err
+	if err := myc.Core.EmailSender.SendValidationEmail(p.Email, p.ValidationToken, p.Language); err != nil {
+		return fmt.Errorf("handlertasks.HandlerSendValidationEmail.SendValidationEmail(%s, %s, %s): %w",
+			p.Email, p.ValidationToken, p.Language, err)
 	}
 
 	return nil

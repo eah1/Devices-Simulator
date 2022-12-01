@@ -2,7 +2,8 @@
 package config
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -11,7 +12,7 @@ import (
 func LoadConfig() (Config, error) {
 	flags, err := getFlags()
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("config.LoadConfig.getFlags %w", err)
 	}
 
 	if checkFlags(flags) {
@@ -25,21 +26,18 @@ func LoadConfig() (Config, error) {
 func getFlags() (map[string]string, error) {
 	var flags map[string]string
 
-	//nolint: exhaustivestruct
-	rootCmd := &cobra.Command{
-		Use: "myc-cloud-app",
-		Run: func(cmd *cobra.Command, args []string) {
-		},
-	}
+	rootCmd := new(cobra.Command)
+	rootCmd.Use = "myc-device-simulator-app"
+	rootCmd.Run = func(cmd *cobra.Command, args []string) {}
 
 	rootCmd.Flags().StringToStringVarP(&flags, "flag", "f", nil, "Flag")
 
 	if err := viper.BindPFlag("flag", rootCmd.Flags().Lookup("flag")); err != nil {
-		return flags, errors.Wrap(err, "error in BindPFlag")
+		return flags, fmt.Errorf("config.getFlags.BinPFlag: %w", err)
 	}
 
 	if err := rootCmd.Execute(); err != nil {
-		return flags, errors.Wrap(err, "error in executed")
+		return flags, fmt.Errorf("config.getFlags.Execute: %w", err)
 	}
 
 	return flags, nil
@@ -100,7 +98,7 @@ func LoadConfigEnvironments() (Config, error) {
 	_ = viper.BindEnv("SECRETKEY")
 
 	if err := viper.Unmarshal(&config); err != nil {
-		return config, errors.Wrap(err, "unable to decode into struct")
+		return config, fmt.Errorf("config.LoadConfigEnvironments.Unmarshal: %w", err)
 	}
 
 	return config, nil
@@ -114,11 +112,11 @@ func LoadConfigFile(configFile string) (Config, error) {
 	viper.SetConfigFile(configFile)
 
 	if err := viper.ReadInConfig(); err != nil {
-		return config, errors.Wrap(err, "this file not exist")
+		return config, fmt.Errorf("config.LoadConfigFile.ReadInConfig: %w", err)
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		return config, errors.Wrap(err, "unable to decode into struct")
+		return config, fmt.Errorf("config.LoadConfigFile.Unmarshal: %w", err)
 	}
 
 	return config, nil

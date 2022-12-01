@@ -1,12 +1,14 @@
 package core_test
 
 import (
+	"device-simulator/business/core"
+	mycDBErrors "device-simulator/business/db/errors"
+	"device-simulator/business/db/store"
+	mycErrors "device-simulator/business/sys/errors"
+	tt "device-simulator/foundation/test"
+	"errors"
 	"testing"
 
-	"device-simulator/business/core"
-	"device-simulator/business/db/store"
-	errors2 "device-simulator/business/sys/errors"
-	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 )
@@ -56,7 +58,7 @@ func TestUserCheckCredentials(t *testing.T) {
 		t.Logf("\tWhen a wrong check password.")
 		{
 			user := tt.UserCreate(t, newStore, testName)
-			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.IsActivate(user))
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, newCore.User.IsActivate(user))
 		}
 	}
 }
@@ -85,7 +87,9 @@ func TestUserCreate(t *testing.T) {
 		{
 			user := tt.UserCreate(t, newStore, testName)
 
-			assert.Error(t, errors2.ErrElementDuplicated, newCore.User.Create(user))
+			var customError *mycDBErrors.PsqlError
+
+			assert.Equal(t, true, errors.As(newCore.User.Create(user), &customError))
 		}
 	}
 }
@@ -115,7 +119,7 @@ func TestUserCreateValidationToken(t *testing.T) {
 		{
 			user := tt.NewUser(testName)
 
-			assert.Error(t, errors2.ErrElementNotExist, newCore.User.CreateValidationToken(&user))
+			assert.Error(t, mycErrors.ErrElementNotExist, newCore.User.CreateValidationToken(&user))
 			assert.Equal(t, "", user.ValidationToken)
 		}
 	}
@@ -148,7 +152,7 @@ func TestUserActivate(t *testing.T) {
 			user := tt.NewUser(testName)
 
 			assert.False(t, user.Validated)
-			assert.Error(t, errors2.ErrElementNotExist, newCore.User.Activate(&user))
+			assert.Error(t, mycErrors.ErrElementNotExist, newCore.User.Activate(&user))
 			assert.False(t, user.Validated)
 		}
 
@@ -160,7 +164,7 @@ func TestUserActivate(t *testing.T) {
 			assert.Nil(t, newCore.User.Activate(&user))
 			assert.True(t, user.Validated)
 
-			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.Activate(&user))
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, newCore.User.Activate(&user))
 		}
 	}
 }
@@ -187,7 +191,7 @@ func TestUserIsActivate(t *testing.T) {
 		t.Logf("\tWhen a wrong validate.")
 		{
 			user := tt.NewUser(testName)
-			assert.Error(t, errors2.ErrAuthenticationFailed, newCore.User.CheckCredentials(user, faker.RandomString(20)))
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, newCore.User.CheckCredentials(user, faker.RandomString(20)))
 		}
 	}
 }
@@ -221,20 +225,17 @@ func TestUserFindByEmail(t *testing.T) {
 			userFind, err := newCore.User.FindByEmail(faker.Internet().Email())
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors2.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
 		t.Logf("\tWhen a failed find user by email when email wrong format.")
 		{
-			userFind, err := newCore.User.FindByEmail("")
+			userFind, err := newCore.User.FindByEmail("email\000")
+
+			var customError *mycDBErrors.PsqlError
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors2.ErrElementNotExist, err)
-
-			userFind, err = newCore.User.FindByEmail(faker.RandomString(20))
-
-			assert.Empty(t, userFind)
-			assert.Error(t, errors2.ErrElementNotExist, err)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }
@@ -268,20 +269,17 @@ func TestFindByValidationToken(t *testing.T) {
 			userFind, err := newCore.User.FindByValidationToken(faker.RandomString(16))
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors2.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
 		t.Logf("\tWhen a failed find user by validation token when token wrong format.")
 		{
-			userFind, err := newCore.User.FindByValidationToken("")
+			userFind, err := newCore.User.FindByValidationToken("token\000")
+
+			var customError *mycDBErrors.PsqlError
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors2.ErrElementNotExist, err)
-
-			userFind, err = newCore.User.FindByValidationToken(faker.RandomString(16))
-
-			assert.Empty(t, userFind)
-			assert.Error(t, errors2.ErrElementNotExist, err)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }

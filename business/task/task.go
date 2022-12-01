@@ -19,7 +19,7 @@ func SendValidationEmail(emails, validationToken, language string) (*asynq.Task,
 		Email: emails, ValidationToken: validationToken, Language: language,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
+		return nil, fmt.Errorf("task.SendValidationEmail.Marshal: %v: %w", err, asynq.SkipRetry)
 	}
 
 	return asynq.NewTask(TypeSendValidationEmail, payload, asynq.Queue("emails")), nil

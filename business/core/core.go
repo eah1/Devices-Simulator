@@ -4,6 +4,7 @@ package core
 import (
 	"device-simulator/app/config"
 	"device-simulator/business/db/store"
+
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
 )

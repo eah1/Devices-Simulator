@@ -3,6 +3,7 @@ package translation
 
 import (
 	"device-simulator/business/web/validator/config"
+
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
@@ -18,10 +19,12 @@ func TranslateEnError(err error, v *validator.Validate) (errs []string) {
 // translateError translate error of validator structs.
 func translateError(err error, trans ut.Translator) (errs []string) {
 	if err != nil {
+		//nolint: errorlint
 		validatorErrs, _ := err.(validator.ValidationErrors)
 
 		for _, e := range validatorErrs {
 			translatedErr := errors.New(e.Translate(trans))
+
 			errs = append(errs, translatedErr.Error())
 		}
 

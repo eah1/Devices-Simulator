@@ -1,16 +1,18 @@
 // Package v1 contains the group v1 and subgroups.
+//
+//nolint:wrapcheck
 package v1
 
 import (
-	"net/http"
-	"strings"
-
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/usecase"
 	"device-simulator/business/web/errors"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
+	"net/http"
+	"strings"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -58,23 +60,15 @@ func (h User) Create(ctx echo.Context) error {
 			})
 		}
 
-		h.cfg.Log.Errorw("Body error in bind", "service", "USER", "error", err.Error())
-
-		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+		return ctx.JSON(errors.ErrorHandlingUserCreate(err, h.cfg.Log))
 	}
 
 	if err := h.usecase.RegisterUser(*userRegister); err != nil {
-		h.cfg.Log.Errorw("Create -> RegisterUser",
-			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
-
-		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+		return ctx.JSON(errors.ErrorHandlingUserCreate(err, h.cfg.Log))
 	}
 
 	if err := h.usecase.SendValidationEmail(userRegister.Email); err != nil {
-		h.cfg.Log.Errorw("Create -> SendValidationEmail",
-			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
-
-		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+		return ctx.JSON(errors.ErrorHandlingUserCreate(err, h.cfg.Log))
 	}
 
 	return ctx.JSON(http.StatusCreated, responses.Success{Status: "OK"})
@@ -95,10 +89,7 @@ func (h User) Activate(ctx echo.Context) error {
 	activateToken := ctx.Param("activateToken")
 
 	if err := h.usecase.ActivateUser(activateToken); err != nil {
-		h.cfg.Log.Errorw("Activate -> ActivateUser",
-			"service", "HANDLER | USER CREATE | USE CASE USER", "error", err.Error())
-
-		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+		return ctx.JSON(errors.ErrorHandlingUserActivate(err, h.cfg.Log))
 	}
 
 	return ctx.JSON(http.StatusOK, responses.Success{Status: "OK"})

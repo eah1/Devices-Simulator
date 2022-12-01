@@ -6,6 +6,8 @@ import (
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/emailsender"
 	emailConfig "device-simulator/foundation/email"
+	"fmt"
+
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"
 )
@@ -50,10 +52,7 @@ func (c *EmailSenderCore) SendValidationEmail(email, validationToken, language s
 		c.emailSender, emailType, title, template, c.config.SMTPFrom, receiver, data, c.log)
 
 	if err := emailsender.SendEmail(c.config.TemplateFolder, emailStructure); err != nil {
-		c.log.Errorw("SendValidationEmail error -> SendEmail",
-			"service", "CORE | EMAIL SENDER | SEND EMAIL", "error", err.Error())
-
-		return err
+		return fmt.Errorf("core.emailsender.SendValidationEmail.SendEmail(%+v): %w", emailStructure, err)
 	}
 
 	return nil
