@@ -33,8 +33,7 @@ func (myc *MycSimulator) HandlerSendValidationEmail(_ context.Context, t *asynq.
 	}
 
 	if err := myc.Core.EmailSender.SendValidationEmail(p.Email, p.ValidationToken, p.Language); err != nil {
-		return fmt.Errorf("handlertasks.HandlerSendValidationEmail.SendValidationEmail(%s, %s, %s): %w",
-			p.Email, p.ValidationToken, p.Language, err)
+		return fmt.Errorf("handlertasks.HandlerSendValidationEmail.SendValidationEmail: %w", err)
 	}
 
 	return nil

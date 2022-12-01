@@ -52,7 +52,7 @@ func (c *EmailSenderCore) SendValidationEmail(email, validationToken, language s
 		c.emailSender, emailType, title, template, c.config.SMTPFrom, receiver, data, c.log)
 
 	if err := emailsender.SendEmail(c.config.TemplateFolder, emailStructure); err != nil {
-		return fmt.Errorf("core.emailsender.SendValidationEmail.SendEmail(%+v): %w", emailStructure, err)
+		return fmt.Errorf("core.emailsender.SendValidationEmail: %w", err)
 	}
 
 	return nil

@@ -10,16 +10,15 @@ import (
 func (u *UseCase) Login(userLogin webmodels.LoginUser) (string, error) {
 	user, err := u.core.User.FindByEmail(userLogin.Username)
 	if err != nil {
-		return "", fmt.Errorf("usecase.auth.Login.FindByEmail(%s): %w", userLogin.Username, err)
+		return "", fmt.Errorf("usecase.auth.Login: %w", err)
 	}
 
 	if err := u.core.User.CheckCredentials(user, userLogin.Password); err != nil {
-		return "", fmt.Errorf("usecase.auth.Login.CheckCredentials(%+v, %s): %w",
-			user, userLogin.Password, err)
+		return "", fmt.Errorf("usecase.auth.Login: %w", err)
 	}
 
 	if err := u.core.User.IsActivate(user); err != nil {
-		return "", fmt.Errorf("usecase.auth.Login.IsActivate(%+v): %w", user, err)
+		return "", fmt.Errorf("usecase.auth.Login: %w", err)
 	}
 
 	clams := auth.CustomClaims{
@@ -30,7 +29,7 @@ func (u *UseCase) Login(userLogin webmodels.LoginUser) (string, error) {
 
 	token, err := u.core.Auth.GenerateToken(clams)
 	if err != nil {
-		return "", fmt.Errorf("usecase.auth.Login.GenerateToken(%+v): %w", clams, err)
+		return "", fmt.Errorf("usecase.auth.Login: %w", err)
 	}
 
 	return token, nil
