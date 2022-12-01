@@ -3,6 +3,7 @@ package handler
 
 import (
 	"device-simulator/app/config"
+
 	"github.com/hibiken/asynq"
 	"github.com/jhillyerd/enmime"
 	"go.uber.org/zap"

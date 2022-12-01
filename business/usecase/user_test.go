@@ -1,12 +1,14 @@
 package usecase_test
 
 import (
-	"testing"
-
+	mycDBErrors "device-simulator/business/db/errors"
 	"device-simulator/business/db/store"
-	errors2 "device-simulator/business/sys/errors"
+	mycErrors "device-simulator/business/sys/errors"
 	"device-simulator/business/usecase"
 	tt "device-simulator/foundation/test"
+	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"
@@ -45,16 +47,20 @@ func TestUseCaseRegisterUser(t *testing.T) {
 		{
 			user := tt.NewRegistrationUser(testName)
 
+			var customError *mycDBErrors.PsqlError
+
 			assert.Nil(t, newUseCase.RegisterUser(user))
-			assert.Error(t, errors2.ErrElementDuplicated, newUseCase.RegisterUser(user))
+			assert.Equal(t, true, errors.As(newUseCase.RegisterUser(user), &customError))
 		}
 
 		t.Logf("\tWhen creating a registration wrong form.")
 		{
 			user := tt.NewRegistrationUser(testName)
-			user.Email = ""
+			user.Email = "email\000"
 
-			assert.Error(t, errors2.ErrElementRequest, newUseCase.RegisterUser(user))
+			var customError *mycDBErrors.PsqlError
+
+			assert.Equal(t, true, errors.As(newUseCase.RegisterUser(user), &customError))
 		}
 	}
 }
@@ -84,7 +90,7 @@ func TestUseCaseSendValidationEmail(t *testing.T) {
 
 		t.Logf("\tWhen a failed send validation email where email not exist.")
 		{
-			assert.Error(t, errors2.ErrElementNotExist, newUseCase.SendValidationEmail(faker.Internet().Email()))
+			assert.Error(t, mycErrors.ErrElementNotExist, newUseCase.SendValidationEmail(faker.Internet().Email()))
 		}
 	}
 }
@@ -127,7 +133,7 @@ func TestUseCaseActivateUser(t *testing.T) {
 
 		t.Logf("\tWhen a failed activate user when user not exist.")
 		{
-			assert.Error(t, errors2.ErrElementNotExist, newUseCase.ActivateUser(faker.RandomString(16)))
+			assert.Error(t, mycErrors.ErrElementNotExist, newUseCase.ActivateUser(faker.RandomString(16)))
 		}
 
 		t.Logf("\tWhen a failed activate user when user is alredy active.")
@@ -150,7 +156,7 @@ func TestUseCaseActivateUser(t *testing.T) {
 
 			assert.True(t, userDB.Validated)
 
-			assert.Error(t, errors2.ErrAuthenticationFailed, newUseCase.ActivateUser(userDB.ValidationToken))
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, newUseCase.ActivateUser(userDB.ValidationToken))
 		}
 	}
 }

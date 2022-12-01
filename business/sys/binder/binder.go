@@ -1,9 +1,10 @@
 package binder
 
 import (
+	"device-simulator/business/web/validator"
+	"fmt"
 	"strings"
 
-	"device-simulator/business/web/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/leebenson/conform"
 	"github.com/pkg/errors"
@@ -15,7 +16,7 @@ func (cb *CustomBinder) Bind(body interface{}, ctx echo.Context) (err error) {
 	// You may use default binder
 	db := &echo.DefaultBinder{}
 	if err = db.Bind(body, ctx); err != nil {
-		return err
+		return fmt.Errorf("binder.Binder: %w", err)
 	}
 
 	// format structure.

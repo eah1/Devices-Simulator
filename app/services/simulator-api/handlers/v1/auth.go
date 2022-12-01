@@ -1,17 +1,19 @@
 // Package v1 contains the group v1 and subgroups.
+//
+//nolint:wrapcheck
 package v1
 
 import (
-	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
-
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/usecase"
 	"device-simulator/business/web/errors"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
+	"net/http"
+	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Auth struct {
@@ -58,17 +60,12 @@ func (h Auth) Login(ctx echo.Context) error {
 			})
 		}
 
-		h.cfg.Log.Errorw("Body error in bind", "service", "USER", "error", err.Error())
-
-		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+		return ctx.JSON(errors.ErrorHandlingLogin(err, h.cfg.Log))
 	}
 
 	token, err := h.usecase.Login(*userLogin)
 	if err != nil {
-		h.cfg.Log.Errorw("Login -> Login",
-			"service", "HANDLER | AUTH LOGIN | USE CASE AUTH", "error", err.Error())
-
-		return ctx.JSON(errors.HandlingError(err, h.cfg.Log))
+		return ctx.JSON(errors.ErrorHandlingLogin(err, h.cfg.Log))
 	}
 
 	return ctx.JSON(http.StatusOK, responses.SuccessLogin{Status: "OK", Token: token})

@@ -2,7 +2,8 @@
 package logger
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -29,7 +30,7 @@ func InitLogger(service, env string) (*zap.SugaredLogger, error) {
 
 	log, err := config.Build()
 	if err != nil {
-		return nil, errors.Wrap(err, "error in build logger")
+		return nil, fmt.Errorf("logger.InitLogger.Build: %w", err)
 	}
 
 	return log.Sugar(), nil

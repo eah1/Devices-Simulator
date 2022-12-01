@@ -20,6 +20,7 @@ import (
 const (
 	errorConfigEmail = "error configuration email"
 	errorSendEmail   = "error send Email"
+	emailPort        = 587
 )
 
 type loginAuth struct {
@@ -67,7 +68,7 @@ func InnitEmailConfig(config config.Config) (*enmime.SMTPSender, error) {
 		return nil, fmt.Errorf("%s : %w", errorConfigEmail, err)
 	}
 
-	if port == 587 {
+	if port == emailPort {
 		// TLS config.
 		tlsConfig := new(tls.Config)
 		tlsConfig.ServerName = config.SMTPHost

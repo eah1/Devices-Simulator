@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrPsqlDefault = errors.New("Default postgresql error")
+	ErrDB = errors.New("Database error")
 
 	ErrElementDuplicated    = errors.New("Element duplicated")
 	ErrElementRequest       = errors.New("Element request failed")

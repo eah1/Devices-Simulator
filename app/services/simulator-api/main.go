@@ -23,16 +23,27 @@ import (
 	"xorm.io/xorm"
 )
 
+const (
+	retryDBMax   = 5
+	echoLogLevel = 2
+)
+
 func main() {
 	// Create config env vars.
 	cfg, err := config.LoadConfig()
 	if err != nil {
+		//nolint: forbidigo
+		fmt.Println("Cannot crate LoadConfig: " + err.Error())
+
 		os.Exit(1)
 	}
 
 	// Construct the application logger.
 	log, err := logger.InitLogger("SIMULATOR-API", cfg.Environment)
 	if err != nil {
+		//nolint: forbidigo
+		fmt.Println("Cannot crate Logger: " + err.Error())
+
 		os.Exit(1)
 	}
 
@@ -62,11 +73,11 @@ func run(log *zap.SugaredLogger, cfg config.Config) error {
 	// Create connectivity to the database.
 	host := cfg.DBPostgres[strings.Index(cfg.DBPostgres, "@")+1 : strings.LastIndex(cfg.DBPostgres, "/")]
 
-	database, err := db.Open(db.NewConfigDB(cfg), 5, log)
+	database, err := db.Open(db.NewConfigDB(cfg), retryDBMax, log)
 	if err != nil {
-		log.Errorf("database open: %s", err)
+		log.Errorf("main.run.db.open:: %s", err)
 
-		return fmt.Errorf("database open: %w", err)
+		return fmt.Errorf("main.run.db.open: %w", err)
 	}
 
 	log.Infow("starting database status", "host", host)
@@ -81,9 +92,9 @@ func run(log *zap.SugaredLogger, cfg config.Config) error {
 
 	// Created a basic configuration sentry.
 	if err := goSentry.Init(sentry.InitSentryConfig(cfg)); err != nil {
-		log.Errorf("sentry configuration: %s", err)
+		log.Errorf("main.run.sentry.init: %s", err)
 
-		return fmt.Errorf("sentry configuration: %w", err)
+		return fmt.Errorf("main.run.sentry.init: %w", err)
 	}
 
 	log.Infow("starting sentry config status")
@@ -112,7 +123,7 @@ func startEcho(log *zap.SugaredLogger, cfg config.Config, db *xorm.Engine, clien
 	app.HideBanner = true
 
 	// Set logging level to INFO.
-	app.Logger.SetLevel(2)
+	app.Logger.SetLevel(echoLogLevel)
 
 	// set binder custom.
 	app.Binder = &binder.CustomBinder{}

@@ -4,17 +4,18 @@ package store
 import (
 	"device-simulator/business/core/models"
 	"device-simulator/business/sys/db"
-	errors2 "device-simulator/business/sys/errors"
+	mycErrors "device-simulator/business/sys/errors"
+	"fmt"
 )
 
 // UserCreate creation a new user.
 func (s *Store) UserCreate(user models.User) error {
 	if _, err := s.engine.Insert(user); err != nil {
-		return db.TranslatePsqlError(s.log, err)
+		return fmt.Errorf("store.user.UserCreate.Insert(%+v): %w", user, db.PsqlError(s.log, err))
 	}
 
 	if err := s.engine.Table(user.TableName()).Commit(); err != nil {
-		return db.TranslatePsqlError(s.log, err)
+		return fmt.Errorf("store.user.UserCreate.Table(%+v): %w", user, db.PsqlError(s.log, err))
 	}
 
 	return nil
@@ -26,11 +27,11 @@ func (s *Store) UserFindByEmail(email string) (models.User, error) {
 
 	res, err := s.engine.Where("email = ?", email).Get(&user)
 	if err != nil {
-		return user, db.TranslatePsqlError(s.log, err)
+		return user, fmt.Errorf("store.user.UserFindByEmail(%s): %w", email, db.PsqlError(s.log, err))
 	}
 
 	if !res {
-		return user, errors2.ErrElementNotExist
+		return user, fmt.Errorf("store.user.UserFindByEmail(%s): %w", email, mycErrors.ErrElementNotExist)
 	}
 
 	return user, nil
@@ -42,11 +43,11 @@ func (s *Store) UserFindByValidationToken(validationToken string) (models.User, 
 
 	res, err := s.engine.Where("validation_token = ?", validationToken).Get(&user)
 	if err != nil {
-		return user, db.TranslatePsqlError(s.log, err)
+		return user, fmt.Errorf("store.user.UserFindByValidationToken(%s): %w", validationToken, db.PsqlError(s.log, err))
 	}
 
 	if !res {
-		return user, errors2.ErrElementNotExist
+		return user, fmt.Errorf("store.user.UserFindByValidationToken(%s): %w", validationToken, mycErrors.ErrElementNotExist)
 	}
 
 	return user, nil
@@ -56,11 +57,11 @@ func (s *Store) UserFindByValidationToken(validationToken string) (models.User, 
 func (s *Store) UserUpdate(user models.User) error {
 	update, err := s.engine.UseBool().ID(user.ID).Update(&user)
 	if err != nil {
-		return db.TranslatePsqlError(s.log, err)
+		return fmt.Errorf("store.user.UserUpdate.Update(%+v): %w", user, db.PsqlError(s.log, err))
 	}
 
 	if update != 1 {
-		return errors2.ErrElementNotExist
+		return fmt.Errorf("store.user.UserUpdate(%+v): %w", user, mycErrors.ErrElementNotExist)
 	}
 
 	return nil

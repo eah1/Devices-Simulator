@@ -1,11 +1,13 @@
 package store_test
 
 import (
+	mycDBErrors "device-simulator/business/db/errors"
+	"device-simulator/business/db/store"
+	mycErrors "device-simulator/business/sys/errors"
+	tt "device-simulator/foundation/test"
+	"errors"
 	"testing"
 
-	"device-simulator/business/db/store"
-	"device-simulator/business/sys/errors"
-	tt "device-simulator/foundation/test"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 )
@@ -25,23 +27,28 @@ func TestUserCreate(t *testing.T) {
 		t.Logf("\tWhen creating user.")
 		{
 			user := tt.NewUser(testName)
-
 			assert.Nil(t, newStore.UserCreate(user))
 		}
 
 		t.Logf("\tWhen creating a duplicate user.")
 		{
 			user := tt.UserCreate(t, newStore, testName)
-
-			assert.Error(t, errors.ErrElementDuplicated, newStore.UserCreate(user))
+			assert.Error(t, newStore.UserCreate(user))
 		}
 
 		t.Logf("\tWhen creating user with invalid id.")
 		{
 			user := tt.NewUser(testName)
 			user.ID = faker.RandomString(36)
+			assert.Error(t, newStore.UserCreate(user))
+		}
 
-			assert.Error(t, errors.ErrElementRequest, newStore.UserCreate(user))
+		t.Logf("\tWhen creating user with invalid insertion  table.")
+		{
+			user := tt.NewUser(testName)
+			user.FirstName = "name\000"
+
+			assert.Error(t, newStore.UserCreate(user))
 		}
 	}
 }
@@ -73,7 +80,7 @@ func TestUserFindByEmail(t *testing.T) {
 			userFind, err := newStore.UserFindByEmail(faker.Internet().Email())
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
 		t.Logf("\tWhen a not found find user by email which format email is wrong.")
@@ -81,12 +88,22 @@ func TestUserFindByEmail(t *testing.T) {
 			userFind, err := newStore.UserFindByEmail("")
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 
 			userFind, err = newStore.UserFindByEmail(faker.RandomString(20))
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
+		}
+
+		t.Logf("\tWhen a not found find user by email which format is not correct.")
+		{
+			userFind, err := newStore.UserFindByEmail("email\000")
+
+			var customError *mycDBErrors.PsqlError
+
+			assert.Empty(t, userFind)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }
@@ -118,20 +135,17 @@ func TestUserFindByValidationToken(t *testing.T) {
 			userFind, err := newStore.UserFindByValidationToken(faker.RandomString(16))
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors.ErrElementNotExist, err)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
 		t.Logf("\tWhen a not found find user by validate token which format email is wrong.")
 		{
-			userFind, err := newStore.UserFindByValidationToken("")
+			userFind, err := newStore.UserFindByValidationToken("token\000")
+
+			var customError *mycDBErrors.PsqlError
 
 			assert.Empty(t, userFind)
-			assert.Error(t, errors.ErrElementNotExist, err)
-
-			userFind, err = newStore.UserFindByValidationToken(faker.RandomString(16))
-
-			assert.Empty(t, userFind)
-			assert.Error(t, errors.ErrElementNotExist, err)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }
@@ -160,16 +174,18 @@ func TestUserUpdate(t *testing.T) {
 		{
 			user := tt.NewUser(testName)
 
-			assert.Error(t, errors.ErrElementNotExist, newStore.UserUpdate(user))
+			assert.Error(t, mycErrors.ErrElementNotExist, newStore.UserUpdate(user))
 		}
 
 		t.Logf("\tWhen a fail user update when fields are wrong.")
 		{
 			user := tt.UserCreate(t, newStore, testName)
 			user.Language = faker.RandomChoice([]string{"en", "es", "fr", "pt"})
-			user.ID = faker.RandomString(20)
+			user.ID = "id\000"
 
-			assert.Error(t, errors.ErrElementRequest, newStore.UserUpdate(user))
+			var customError *mycDBErrors.PsqlError
+
+			assert.Equal(t, true, errors.As(newStore.UserUpdate(user), &customError))
 		}
 	}
 }

@@ -9,6 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	priorityEmails  = 1
+	priorityMetrics = 9
+	timeRetry       = 10
+)
+
 // NewQueue create a config queue.
 func NewQueue(config config.Config, log *zap.SugaredLogger) *asynq.Server {
 	srv := asynq.NewServer(
@@ -21,12 +27,12 @@ func NewQueue(config config.Config, log *zap.SugaredLogger) *asynq.Server {
 			},
 			Concurrency: config.QueueConcurrency,
 			Queues: map[string]int{
-				"emails":  1,
-				"metrics": 9,
+				"emails":  priorityEmails,
+				"metrics": priorityMetrics,
 			},
 			Logger: log,
 			RetryDelayFunc: func(n int, e error, t *asynq.Task) time.Duration {
-				return time.Second * 10
+				return time.Second * timeRetry
 			},
 		},
 	)

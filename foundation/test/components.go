@@ -1,3 +1,6 @@
+// Package test_test files aux from test.
+//
+//nolint:gochecknoglobals
 package test_test
 
 import (
@@ -21,6 +24,8 @@ var (
 	database *xorm.Engine
 	queue    *asynq.Client
 )
+
+const retryDBMax = 5
 
 // InitLogger create logger.
 func InitLogger(t *testing.T, service string) *zap.SugaredLogger {
@@ -62,7 +67,7 @@ func InitDatabase(t *testing.T, config config.Config, log *zap.SugaredLogger) *x
 		defer lock.Unlock()
 
 		if database == nil {
-			database, err = db.Open(db.NewConfigDB(config), 5, log)
+			database, err = db.Open(db.NewConfigDB(config), retryDBMax, log)
 			require.NoError(t, err)
 		}
 	}

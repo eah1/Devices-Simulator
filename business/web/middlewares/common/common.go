@@ -11,6 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
+const timeParse = 1000000
+
 // AddCommonMiddlewares add basics middlewares.
 func AddCommonMiddlewares(app *echo.Echo, log *zap.SugaredLogger) {
 	app.Use(GenerateTraceID())
@@ -55,7 +57,7 @@ func ZapLogger(log *zap.SugaredLogger) echo.MiddlewareFunc {
 
 			log.Infow("request completed", "traceid", requestID, "method", req.Method,
 				"path", req.URL.Path, "remoteaddr", req.RemoteAddr, "statuscode", res.Status,
-				"exec_time", float64(time.Since(start))/1000000)
+				"exec_time", float64(time.Since(start))/timeParse)
 
 			return nil
 		}

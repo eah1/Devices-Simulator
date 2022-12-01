@@ -7,6 +7,8 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+const timeExpired = 24
+
 // CustomClaims are custom claims extending default ones.
 type CustomClaims struct {
 	jwt.StandardClaims
@@ -17,7 +19,7 @@ type CustomClaims struct {
 // NewStandardClaims crate a standard claim.
 func NewStandardClaims() jwt.StandardClaims {
 	standardClaims := new(jwt.StandardClaims)
-	standardClaims.ExpiresAt = time.Now().Add(time.Hour * 24).Unix()
+	standardClaims.ExpiresAt = time.Now().Add(time.Hour * timeExpired).Unix()
 
 	return *standardClaims
 }

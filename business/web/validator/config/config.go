@@ -9,7 +9,8 @@ import (
 )
 
 // CreateEnTranslation configuration error translation English.
-// nolint: ireturn
+//
+//nolint:ireturn
 func CreateEnTranslation(v *validator.Validate) ut.Translator {
 	uni := ut.New(en.New(), en.New())
 

@@ -3,17 +3,21 @@ package db
 
 import (
 	"device-simulator/app/config"
+	mycDBErrors "device-simulator/business/db/errors"
+	mycErrors "device-simulator/business/sys/errors"
+	"errors"
+	"fmt"
 	"time"
 
-	errors2 "device-simulator/business/sys/errors"
 	goSentry "github.com/getsentry/sentry-go"
 	"github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"xorm.io/xorm"
 )
+
+const timeSleep = 500
 
 // Config is the required properties to use the database.
 type Config struct {
@@ -38,7 +42,7 @@ func NewConfigDB(config config.Config) Config {
 func Open(cfg Config, retries int, log *zap.SugaredLogger) (*xorm.Engine, error) {
 	engine, err := xorm.NewEngine("pgx", cfg.DBPostgres)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to create a new engine")
+		return nil, fmt.Errorf("db.open.NewEngine %w", err)
 	}
 
 	i := 1
@@ -46,7 +50,7 @@ func Open(cfg Config, retries int, log *zap.SugaredLogger) (*xorm.Engine, error)
 	err = engine.Ping()
 	for err != nil && i < retries {
 		log.Warn("Failed to connect to database (%d)", retries)
-		time.Sleep(time.Duration(500*i) * time.Millisecond)
+		time.Sleep(time.Duration(timeSleep*i) * time.Millisecond)
 
 		i++
 
@@ -55,7 +59,7 @@ func Open(cfg Config, retries int, log *zap.SugaredLogger) (*xorm.Engine, error)
 	}
 
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to connection database")
+		return nil, fmt.Errorf("db.open.NewEngine %w", err)
 	}
 
 	engine.SetMaxIdleConns(cfg.MaxIdleConns)
@@ -67,31 +71,22 @@ func Open(cfg Config, retries int, log *zap.SugaredLogger) (*xorm.Engine, error)
 	return engine, nil
 }
 
-func TranslatePsqlError(log *zap.SugaredLogger, err error) error {
+// PsqlError parse error PgError to custom error.
+func PsqlError(log *zap.SugaredLogger, err error) error {
 	goSentry.CaptureException(err)
 
-	switch e := err.(type) {
-	case *pgconn.PgError:
-		log.Errorw("Postgresql error", "service",
-			"POSTGRESQL | DB", "constraints", e.ConstraintName, "error", err.Error())
+	var pgError *pgconn.PgError
 
-		switch e.Code {
-		case "22P02":
-			// Invalid input syntax
-			return errors2.ErrElementRequest
-		case "23503":
-			// Foreign key violation
-			return errors2.ErrElementRequest
-		case "23505":
-			// Unique violation
-			return errors2.ErrElementDuplicated
-		case "42703":
-			// Undefined column
-			return errors2.ErrElementRequest
-		default:
-			return errors2.ErrPsqlDefault
+	if errors.As(err, &pgError) {
+		return &mycDBErrors.PsqlError{
+			CodeSQL:        pgError.Code,
+			TableName:      pgError.TableName,
+			ConstraintName: pgError.ConstraintName,
+			Err:            pgError.Message,
 		}
-	default:
-		return errors2.ErrPsqlDefault
 	}
+
+	log.Error(err)
+
+	return fmt.Errorf("db.PsqlError: %w", mycErrors.ErrDB)
 }
