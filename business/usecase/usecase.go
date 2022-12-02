@@ -43,4 +43,5 @@ type User interface {
 // Auth methods auth use case.
 type Auth interface {
 	Login(userLogin webmodels.LoginUser) (string, error)
+	Logout(token, userID string) error
 }

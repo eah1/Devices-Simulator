@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"device-simulator/business/core/models"
 	"device-simulator/business/sys/auth"
 	"device-simulator/business/web/webmodels"
 	"fmt"
@@ -32,9 +33,23 @@ func (u *UseCase) Login(userLogin webmodels.LoginUser) (string, error) {
 		return "", fmt.Errorf("usecase.auth.Login: %w", err)
 	}
 
-	// if err := u.core.Authentication.Create(models.AuthenticationByToken(token)); err != nil {
-	// 	return "", fmt.Errorf("usecase.auth.Login: %w", err)
-	// }
+	if err := u.core.Authentication.Create(models.AuthenticationByToken(token, clams.ID)); err != nil {
+		return "", fmt.Errorf("usecase.auth.Login: %w", err)
+	}
 
 	return token, nil
+}
+
+// Logout disable authentication token.
+func (u *UseCase) Logout(token, userID string) error {
+	authentication, err := u.core.Authentication.FindByTokenAndUserID(token, userID)
+	if err != nil {
+		return fmt.Errorf("usecase.auth.Logout: %w", err)
+	}
+
+	if err := u.core.Authentication.Invalidation(&authentication); err != nil {
+		return fmt.Errorf("usecase.auth.Logout: %w", err)
+	}
+
+	return nil
 }
