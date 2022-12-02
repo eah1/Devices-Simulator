@@ -32,5 +32,9 @@ func (u *UseCase) Login(userLogin webmodels.LoginUser) (string, error) {
 		return "", fmt.Errorf("usecase.auth.Login: %w", err)
 	}
 
+	// if err := u.core.Authentication.Create(models.AuthenticationByToken(token)); err != nil {
+	// 	return "", fmt.Errorf("usecase.auth.Login: %w", err)
+	// }
+
 	return token, nil
 }

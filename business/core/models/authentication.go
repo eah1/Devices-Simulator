@@ -1,7 +1,9 @@
 // Package models contains structs of the model application.
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // Authentication represents the structure we need for moving data.
 type Authentication struct {
@@ -17,4 +19,15 @@ type Authentication struct {
 
 func (*Authentication) TableName() string {
 	return "authentications"
+}
+
+// AuthenticationByToken create authentication model from token.
+func AuthenticationByToken(token, userID string) Authentication {
+	authentication := new(Authentication)
+	authentication.Token = token
+	authentication.UserID = userID
+	authentication.Valid = true
+	authentication.LoginAt = time.Now()
+
+	return *authentication
 }
