@@ -73,8 +73,6 @@ func Open(cfg Config, retries int, log *zap.SugaredLogger) (*xorm.Engine, error)
 
 // PsqlError parse error PgError to custom error.
 func PsqlError(log *zap.SugaredLogger, err error) error {
-	goSentry.CaptureException(err)
-
 	var pgError *pgconn.PgError
 
 	if errors.As(err, &pgError) {
@@ -87,6 +85,7 @@ func PsqlError(log *zap.SugaredLogger, err error) error {
 	}
 
 	log.Error(err)
+	goSentry.CaptureException(err)
 
 	return fmt.Errorf("db.PsqlError: %w", mycErrors.ErrDB)
 }

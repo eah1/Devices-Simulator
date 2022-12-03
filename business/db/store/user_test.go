@@ -43,7 +43,7 @@ func TestUserCreate(t *testing.T) {
 			assert.Error(t, newStore.UserCreate(user))
 		}
 
-		t.Logf("\tWhen creating user with invalid insertion  table.")
+		t.Logf("\tWhen creating user with invalid insertion table.")
 		{
 			user := tt.NewUser(testName)
 			user.FirstName = "name\000"
@@ -70,7 +70,6 @@ func TestUserFindByEmail(t *testing.T) {
 			user := tt.UserCreate(t, newStore, testName)
 
 			userFind, err := newStore.UserFindByEmail(user.Email)
-
 			assert.Equal(t, user.Email, userFind.Email)
 			assert.Nil(t, err)
 		}
@@ -78,7 +77,6 @@ func TestUserFindByEmail(t *testing.T) {
 		t.Logf("\tWhen a not found find user by email which user not exist.")
 		{
 			userFind, err := newStore.UserFindByEmail(faker.Internet().Email())
-
 			assert.Empty(t, userFind)
 			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
@@ -86,12 +84,10 @@ func TestUserFindByEmail(t *testing.T) {
 		t.Logf("\tWhen a not found find user by email which format email is wrong.")
 		{
 			userFind, err := newStore.UserFindByEmail("")
-
 			assert.Empty(t, userFind)
 			assert.Error(t, mycErrors.ErrElementNotExist, err)
 
 			userFind, err = newStore.UserFindByEmail(faker.RandomString(20))
-
 			assert.Empty(t, userFind)
 			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
@@ -101,7 +97,6 @@ func TestUserFindByEmail(t *testing.T) {
 			userFind, err := newStore.UserFindByEmail("email\000")
 
 			var customError *mycDBErrors.PsqlError
-
 			assert.Empty(t, userFind)
 			assert.Equal(t, true, errors.As(err, &customError))
 		}
@@ -125,7 +120,6 @@ func TestUserFindByValidationToken(t *testing.T) {
 			user := tt.UserCreate(t, newStore, testName)
 
 			userFind, err := newStore.UserFindByValidationToken(user.ValidationToken)
-
 			assert.Equal(t, user.ValidationToken, userFind.ValidationToken)
 			assert.Nil(t, err)
 		}
@@ -133,7 +127,6 @@ func TestUserFindByValidationToken(t *testing.T) {
 		t.Logf("\tWhen a not found find user by validate token which user not exist.")
 		{
 			userFind, err := newStore.UserFindByValidationToken(faker.RandomString(16))
-
 			assert.Empty(t, userFind)
 			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
@@ -143,7 +136,6 @@ func TestUserFindByValidationToken(t *testing.T) {
 			userFind, err := newStore.UserFindByValidationToken("token\000")
 
 			var customError *mycDBErrors.PsqlError
-
 			assert.Empty(t, userFind)
 			assert.Equal(t, true, errors.As(err, &customError))
 		}
@@ -173,7 +165,6 @@ func TestUserUpdate(t *testing.T) {
 		t.Logf("\tWhen a fail user update when user not exist.")
 		{
 			user := tt.NewUser(testName)
-
 			assert.Error(t, mycErrors.ErrElementNotExist, newStore.UserUpdate(user))
 		}
 
@@ -184,7 +175,6 @@ func TestUserUpdate(t *testing.T) {
 			user.ID = "id\000"
 
 			var customError *mycDBErrors.PsqlError
-
 			assert.Equal(t, true, errors.As(newStore.UserUpdate(user), &customError))
 		}
 	}

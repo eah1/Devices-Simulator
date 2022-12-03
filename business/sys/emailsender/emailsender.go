@@ -5,23 +5,19 @@ import (
 	"bytes"
 	"crypto/tls"
 	"device-simulator/app/config"
+	mycErrors "device-simulator/business/sys/errors"
 	"fmt"
 	"html/template"
 	"net"
 	"net/smtp"
 	"strconv"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/jhillyerd/enmime"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
-const (
-	errorConfigEmail = "error configuration email"
-	errorSendEmail   = "error send Email"
-	emailPort        = 587
-)
+const emailPort = 587
 
 type loginAuth struct {
 	username, password string
@@ -55,17 +51,19 @@ func InnitEmailConfig(config config.Config) (*enmime.SMTPSender, error) {
 	// connection tcp.
 	conn, err := net.Dial(config.SMTPNetwork, config.SMTPHost+":"+config.SMTPPort)
 	if err != nil {
-		return nil, fmt.Errorf("%s : %w", errorConfigEmail, err)
+		return nil, fmt.Errorf("emailsender.InnitEmailConfig.net.Dial(%s, %s): %w",
+			config.SMTPNetwork, config.SMTPHost+":"+config.SMTPPort, err)
 	}
 
 	client, err := smtp.NewClient(conn, config.SMTPHost)
 	if err != nil {
-		return nil, fmt.Errorf("%s : %w", errorConfigEmail, err)
+		return nil, fmt.Errorf("emailsender.InnitEmailConfig.smtp.NewClient(%+v, %s): %w",
+			conn, config.SMTPHost, err)
 	}
 
 	port, err := strconv.Atoi(config.SMTPPort)
 	if err != nil {
-		return nil, fmt.Errorf("%s : %w", errorConfigEmail, err)
+		return nil, fmt.Errorf("emailsender.InnitEmailConfig.strconv.Atoi(%s): %w", config.SMTPPort, err)
 	}
 
 	if port == emailPort {
@@ -74,7 +72,7 @@ func InnitEmailConfig(config config.Config) (*enmime.SMTPSender, error) {
 		tlsConfig.ServerName = config.SMTPHost
 
 		if err = client.StartTLS(tlsConfig); err != nil {
-			return nil, fmt.Errorf("%s : %w", errorConfigEmail, err)
+			return nil, fmt.Errorf("emailsender.InnitEmailConfig.client.StartTLS(%+v): %w", tlsConfig, err)
 		}
 	}
 
@@ -82,7 +80,7 @@ func InnitEmailConfig(config config.Config) (*enmime.SMTPSender, error) {
 	auth := authorization(config.PostmarkToken, config.PostmarkToken)
 
 	if err = client.Auth(auth); err != nil {
-		return nil, fmt.Errorf("%s : %w", errorConfigEmail, err)
+		return nil, fmt.Errorf("emailsender.InnitEmailConfig.client.Auth(%+v): %w", auth, err)
 	}
 
 	sender := enmime.NewSMTP(config.SMTPHost+":"+config.SMTPPort, auth)
@@ -121,17 +119,15 @@ func NewEmailStructure(emailSender *enmime.SMTPSender, emailType, title, templat
 func SendEmail(templateFolder string, emailStructure EmailStructure) error {
 	temp, err := template.ParseFiles(templateFolder + emailStructure.template)
 	if err != nil {
-		sentry.CaptureException(err)
-
-		return fmt.Errorf("%s : %w", errorSendEmail, err)
+		return fmt.Errorf("emailsender.SendEmail.template.ParseFiles(%s): %w",
+			templateFolder+emailStructure.template, mycErrors.ErrEmailSender)
 	}
 
 	var body bytes.Buffer
 
-	if err = temp.Execute(&body, emailStructure.data); err != nil {
-		sentry.CaptureException(err)
-
-		return fmt.Errorf("%s : %w", errorSendEmail, err)
+	if err := temp.Execute(&body, emailStructure.data); err != nil {
+		return fmt.Errorf("emailsender.SendEmail.temp.Execute(%+v, %+v): %w",
+			&body, emailStructure.data, mycErrors.ErrEmailSender)
 	}
 
 	master := enmime.Builder().
@@ -143,10 +139,8 @@ func SendEmail(templateFolder string, emailStructure EmailStructure) error {
 		msg := master.To(emailAddress, emailAddress)
 
 		if err := msg.Send(emailStructure.sender); err != nil {
-			emailStructure.log.Error("error when sending email %w", err)
-			sentry.CaptureException(err)
-
-			return fmt.Errorf("%s : %w", errorSendEmail, err)
+			return fmt.Errorf("emailsender.SendEmail.msg.Send(%+v): %w",
+				emailStructure.sender, mycErrors.ErrEmailSender)
 		}
 
 		emailStructure.log.Infow("email", "sendEmail", emailAddress)
