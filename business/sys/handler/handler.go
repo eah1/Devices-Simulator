@@ -6,17 +6,20 @@ import (
 
 	"github.com/hibiken/asynq"
 	"github.com/jhillyerd/enmime"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"xorm.io/xorm"
 )
 
 // HandlerConfig contains all the mandatory systems required by handlers.
 type HandlerConfig struct {
-	Config      config.Config
-	Log         *zap.SugaredLogger
-	DB          *xorm.Engine
-	ClientQueue *asynq.Client
-	EmailSender *enmime.SMTPSender
+	Config            config.Config
+	Log               *zap.SugaredLogger
+	DB                *xorm.Engine
+	ClientQueue       *asynq.Client
+	EmailSender       *enmime.SMTPSender
+	JWTConfig         echo.MiddlewareFunc
+	AuthorizationUser echo.MiddlewareFunc
 }
 
 // NewHandlerConfig initialize HandlerConfig structure.

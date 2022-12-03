@@ -31,6 +31,11 @@ func NewUseCase(
 	}
 }
 
+// GetCore return instance core.
+func (u *UseCase) GetCore() core.Core {
+	return u.core
+}
+
 //go:generate mockery --name User --structname UserMock --filename UserMock.go
 
 // User methods user use case.

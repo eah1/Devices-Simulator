@@ -58,7 +58,26 @@ func ErrorHandlingLogin(err error, log *zap.SugaredLogger) (int, responses.Faile
 	switch {
 	case errors.Is(err, mycErrors.ErrElementNotExist) ||
 		errors.Is(err, mycErrors.ErrAuthenticationFailed):
-		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: "Authentication failed"}
+	default:
+		sentryGo.CaptureException(err)
+
+		return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
+	}
+}
+
+// ErrorHandlingLogout error handling authorization user codes.
+func ErrorHandlingLogout(err error, log *zap.SugaredLogger) (int, responses.Failed) {
+	log.Error(err)
+
+	var customError *mycDBErrors.PsqlError
+
+	switch {
+	case errors.Is(err, mycErrors.ErrElementNotExist) ||
+		errors.Is(err, mycErrors.ErrAuthenticationFailed):
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: "Authentication failed"}
+	case errors.As(err, &customError):
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: "Authentication failed"}
 	default:
 		sentryGo.CaptureException(err)
 

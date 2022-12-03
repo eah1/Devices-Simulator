@@ -1,10 +1,16 @@
 package common
 
 import (
+	"device-simulator/business/core"
+	"device-simulator/business/sys/auth"
+	"device-simulator/business/web/errors"
+	"device-simulator/business/web/responses"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -97,6 +103,43 @@ func SentryTransaction() echo.MiddlewareFunc {
 			span.Finish()
 
 			return nil
+		}
+	}
+}
+
+// AuthorizationUser check authorization user.
+func AuthorizationUser(core core.Core, log *zap.SugaredLogger) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			token, ok := ctx.Get("user").(*jwt.Token)
+			if !ok || token == nil {
+				return next(ctx)
+			}
+
+			claims, ok := token.Claims.(*auth.CustomClaims)
+			if !ok {
+				return fmt.Errorf("%w", ctx.JSON(http.StatusUnauthorized,
+					responses.Failed{Status: "ERROR", Error: "error in get token claims"}))
+			}
+
+			authentication, err := core.Authentication.FindByTokenAndUserID(token.Raw, claims.ID)
+			if err != nil {
+				return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingLogout(err, log)))
+			}
+
+			if err := core.Authentication.IsValid(authentication); err != nil {
+				return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingLogout(err, log)))
+			}
+
+			user, err := core.User.FindByEmail(claims.Email)
+			if err != nil {
+				return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingLogout(err, log)))
+			}
+
+			ctx.Set("token", token)
+			ctx.Set("user", user)
+
+			return next(ctx)
 		}
 	}
 }

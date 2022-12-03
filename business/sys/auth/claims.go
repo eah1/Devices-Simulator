@@ -1,4 +1,4 @@
-// Package auth provides support for jwt configuration.
+// Package auth provides support for authorization configuration.
 package auth
 
 import (

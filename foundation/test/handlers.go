@@ -4,6 +4,7 @@ import (
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/web/responses"
+	"device-simulator/business/web/webmodels"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -16,6 +17,7 @@ import (
 const (
 	usersURI         = "/api/v1/users"
 	usersActivateURI = "/api/v1/users/activate/"
+	authLoginURI     = "/api/v1/auth/login"
 )
 
 // InitHandlerConfig create a config handler.
@@ -80,4 +82,30 @@ func ValidationUser(t *testing.T, app *echo.Echo, newStore store.Store, email st
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, "OK", success.Status)
+}
+
+func AuthLogin(t *testing.T, app *echo.Echo, email, password string) string {
+	t.Helper()
+
+	headers := map[string]string{
+		"Content-Type": "application/json; charset=utf-8",
+	}
+
+	loginAuth := webmodels.LoginUser{
+		Username: email,
+		Password: password,
+	}
+
+	_, rec := MakeRequest(t, NewRequestTest(app, http.MethodPost, authLoginURI, loginAuth, headers, nil))
+
+	successLogin := new(responses.SuccessLogin)
+
+	err := json.Unmarshal(rec.Body.Bytes(), &successLogin)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, "OK", successLogin.Status)
+	assert.GreaterOrEqual(t, len(successLogin.Token), 0)
+
+	return successLogin.Token
 }

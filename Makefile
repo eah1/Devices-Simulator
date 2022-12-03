@@ -65,7 +65,7 @@ test:
 start: start-postgres-test start-redis-test start-fakemailer-test goose-up
 stop:  stop-postgres-test stop-redis-test stop-fakemailer-test
 
-test-local: stop start-postgres-test start-redis-test start-fakemailer-test goose-up test stop-postgres-test stop-redis-test stop-fakemailer-test
+test-local: start-postgres-test start-redis-test start-fakemailer-test goose-up test stop-postgres-test stop-redis-test stop-fakemailer-test
 
 # Run Local.
 run-simulator-api:

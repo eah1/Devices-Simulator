@@ -3,11 +3,14 @@ package v1_test
 import (
 	"device-simulator/app/services/simulator-api/handlers"
 	"device-simulator/business/db/store"
+	"device-simulator/business/sys/auth"
 	"device-simulator/business/sys/binder"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
 	tt "device-simulator/foundation/test"
 	"encoding/json"
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"net/http"
 	"testing"
 
@@ -17,7 +20,10 @@ import (
 	"syreclabs.com/go/faker"
 )
 
-const loginURI = "/api/v1/auth/login"
+const (
+	loginURI  = "/api/v1/auth/login"
+	logoutURI = "/api/v1/auth/logout"
+)
 
 func TestAuthLogin(t *testing.T) {
 	t.Parallel()
@@ -177,6 +183,114 @@ func TestAuthLogin(t *testing.T) {
 
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 			assert.Equal(t, "ERROR", successLogin.Status)
+		}
+	}
+}
+
+func TestAuthLogout(t *testing.T) {
+	t.Parallel()
+
+	testName := "handler-auth-logout"
+
+	// Setup echo.
+	app := echo.New()
+
+	// set binder custom.
+	app.Binder = &binder.CustomBinder{}
+
+	// Create a configuration handlers.
+	handlerConfig := tt.InitHandlerConfig(t, "t-"+testName)
+	newStore := store.NewStore(handlerConfig.Log, handlerConfig.DB)
+
+	// Initializing handles.
+	handlers.Handlers(app, handlerConfig)
+
+	headers := map[string]string{
+		"Content-Type": "application/json; charset=utf-8",
+	}
+
+	t.Log("Given the need to logout auth endpoint.")
+	{
+		t.Logf("\tWhen a sending not token.")
+		{
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+		}
+
+		t.Logf("\tWhen a sending format wrong.")
+		{
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer ",
+			}
+
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+			headers = map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer ...",
+			}
+
+			_, rec = tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		}
+
+		t.Logf("\tWhen a correct logout.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			token := tt.AuthLogin(t, app, email, password)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + token,
+			}
+
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+
+		t.Logf("\tWhen a failed logout token is not valid.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			token := tt.AuthLogin(t, app, email, password)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + token,
+			}
+
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusOK, rec.Code)
+
+			_, rec = tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		}
+
+		t.Logf("\tWhen a failed logout witch not exist userId")
+		{
+			claims := auth.CustomClaims{
+				StandardClaims: auth.NewStandardClaims(),
+				Email:          faker.Internet().Email(),
+				ID:             uuid.NewString(),
+			}
+
+			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+			str, err := token.SignedString([]byte(""))
+			require.NoError(t, err)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + str,
+			}
+
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 	}
 }
