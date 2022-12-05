@@ -257,3 +257,77 @@ func TestUserActivate(t *testing.T) {
 		}
 	}
 }
+
+func TestUserDetail(t *testing.T) {
+	t.Parallel()
+
+	testName := "handler-user-details"
+
+	// Setup echo.
+	app := echo.New()
+
+	// set binder custom.
+	app.Binder = &binder.CustomBinder{}
+
+	// Create a configuration handlers.
+	handlerConfig := tt.InitHandlerConfig(t, "t-"+testName)
+
+	newStore := store.NewStore(handlerConfig.Log, handlerConfig.DB)
+
+	// Initializing handles.
+	handlers.Handlers(app, handlerConfig)
+
+	t.Log("Given the need to get user details endpoint.")
+	{
+		t.Logf("\tWhen a correct details of the user.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			successUser := new(responses.SuccessUser)
+
+			// get user details.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodGet, usersURI, nil, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &successUser)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, rec.Code)
+			assert.Equal(t, successUser.User.Email, email)
+		}
+
+		t.Logf("\tWhen a sending not token.")
+		{
+			headers := map[string]string{
+				"Content-Type": "application/json; charset=utf-8",
+			}
+
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodGet, usersURI, nil, headers, nil))
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		}
+
+		t.Logf("\tWhen a sending format wrong.")
+		{
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer ",
+			}
+
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodGet, usersURI, nil, headers, nil))
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+
+			headers = map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer ...",
+			}
+
+			_, rec = tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodGet, usersURI, nil, headers, nil))
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		}
+	}
+}

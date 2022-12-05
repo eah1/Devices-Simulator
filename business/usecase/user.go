@@ -59,3 +59,16 @@ func (u *UseCase) ActivateUser(activateToken string) error {
 
 	return nil
 }
+
+// InformationUser information user case-use.
+func (u *UseCase) InformationUser(user models.User) webmodels.InformationUser {
+	userInformation := new(webmodels.InformationUser)
+	userInformation.ID = user.ID
+	userInformation.FirstName = user.FirstName
+	userInformation.LastName = user.LastName
+	userInformation.Email = user.Email
+	userInformation.Company = user.Company
+	userInformation.Language = user.Language
+
+	return *userInformation
+}

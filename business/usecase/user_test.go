@@ -160,3 +160,38 @@ func TestUseCaseActivateUser(t *testing.T) {
 		}
 	}
 }
+
+func TestUseCaseInformationUser(t *testing.T) {
+	t.Parallel()
+
+	testName := "use-case-information-user"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+
+	newUseCase := usecase.NewUseCase(
+		newLog, newConfig, newStore, tt.InitClientQueue(t, newConfig), tt.InitEmailConfig(t, newConfig))
+
+	t.Log("Given the need to work with the information user use case.")
+	{
+		t.Logf("\tWhen a correct a information user.")
+		{
+			// Create a register user and validation.
+			email, _ := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
+
+			// find user in database.
+			userDB, err := newStore.UserFindByEmail(email)
+			require.NoError(t, err)
+
+			userInformationWebModel := newUseCase.InformationUser(userDB)
+			assert.Equal(t, userInformationWebModel.ID, userDB.ID)
+			assert.Equal(t, userInformationWebModel.FirstName, userDB.FirstName)
+			assert.Equal(t, userInformationWebModel.LastName, userDB.LastName)
+			assert.Equal(t, userInformationWebModel.Email, userDB.Email)
+			assert.Equal(t, userInformationWebModel.Company, userDB.Company)
+			assert.Equal(t, userInformationWebModel.Language, userDB.Language)
+		}
+	}
+}

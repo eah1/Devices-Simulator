@@ -13,12 +13,7 @@ type Failed struct {
 	Error  string `json:"error"`
 }
 
+// Success response success request.
 type Success struct {
 	Status string `json:"status"  example:"OK"`
-}
-
-// SuccessLogin response token information.
-type SuccessLogin struct {
-	Status string `json:"status"  example:"OK"`
-	Token  string `json:"token"`
 }

@@ -4,10 +4,12 @@
 package v1
 
 import (
+	"device-simulator/business/core/models"
 	"device-simulator/business/db/store"
 	"device-simulator/business/sys/handler"
 	"device-simulator/business/usecase"
 	"device-simulator/business/web/errors"
+	"device-simulator/business/web/middlewares/common"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
 	"net/http"
@@ -34,8 +36,11 @@ func NewUser(cfg handler.HandlerConfig) User {
 func NewUserServiceGroup(app *echo.Group, prefix string, handlers User) {
 	users := app.Group(prefix)
 
+	handlers.cfg.AuthorizationUser = common.AuthorizationUser(handlers.usecase.GetCore(), handlers.cfg.Log)
+
 	users.POST("", handlers.Create)
 	users.POST("/activate/:activateToken", handlers.Activate)
+	users.GET("", handlers.Detail, handlers.cfg.JWTConfig, handlers.cfg.AuthorizationUser)
 }
 
 // Create user create EndPoint.
@@ -93,4 +98,21 @@ func (h User) Activate(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, responses.Success{Status: "OK"})
+}
+
+// Detail user information EndPoint.
+// @Summary Detail user information EndPoint
+// @Tags Users
+// @Description Detail a user information in the system.
+// @Param Authorization header string true "Authentication header"
+// @Produce json
+// @Success 200 {object} responses.SuccessUser
+// @Failure 401 {object} responses.Validator
+// @Failure 500 {object} responses.Failed
+// @Security ApiKeyAuth
+// @Router /api/v1/users [get].
+func (h User) Detail(ctx echo.Context) error {
+	user, _ := ctx.Get("user").(models.User)
+
+	return ctx.JSON(http.StatusOK, responses.SuccessUser{Status: "OK", User: h.usecase.InformationUser(user)})
 }

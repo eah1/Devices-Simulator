@@ -116,6 +116,11 @@ func AuthorizationUser(core core.Core, log *zap.SugaredLogger) echo.MiddlewareFu
 				return next(ctx)
 			}
 
+			if !token.Valid {
+				return fmt.Errorf("%w", ctx.JSON(http.StatusUnauthorized,
+					responses.Failed{Status: "ERROR", Error: "error invalid token"}))
+			}
+
 			claims, ok := token.Claims.(*auth.CustomClaims)
 			if !ok {
 				return fmt.Errorf("%w", ctx.JSON(http.StatusUnauthorized,

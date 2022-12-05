@@ -20,13 +20,15 @@ func ErrorHandlingUserCreate(err error, log *zap.SugaredLogger) (int, responses.
 
 	switch {
 	case errors.Is(err, mycErrors.ErrElementNotExist):
-		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: err.Error()}
+		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
+	case errors.Is(err, mycErrors.ErrGenerateToken):
+		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
 	case errors.As(err, &customError):
 		switch customError.CodeSQL {
 		case "23505":
-			return http.StatusConflict, responses.Failed{Status: "ERROR", Error: err.Error()}
+			return http.StatusConflict, responses.Failed{Status: "ERROR", Error: "Email has already exist in the system"}
 		default:
-			return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
+			return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
 		}
 	default:
 		sentryGo.CaptureException(err)
@@ -41,9 +43,9 @@ func ErrorHandlingUserActivate(err error, log *zap.SugaredLogger) (int, response
 
 	switch {
 	case errors.Is(err, mycErrors.ErrElementNotExist):
-		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: err.Error()}
+		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
 	case errors.Is(err, mycErrors.ErrAuthenticationFailed):
-		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: err.Error()}
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: "Authentication failed"}
 	default:
 		sentryGo.CaptureException(err)
 

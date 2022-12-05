@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrDB          = errors.New("Database error")
-	ErrEmailSender = errors.New("Email sender failed")
+	ErrDB            = errors.New("Database error")
+	ErrEmailSender   = errors.New("Email sender failed")
+	ErrGenerateToken = errors.New("Token generator failed")
 
 	ErrElementDuplicated    = errors.New("Element duplicated")
 	ErrElementRequest       = errors.New("Element request failed")

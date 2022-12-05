@@ -36,6 +36,14 @@ definitions:
       token:
         type: string
     type: object
+  responses.SuccessUser:
+    properties:
+      status:
+        example: OK
+        type: string
+      user:
+        $ref: '#/definitions/webmodels.InformationUser'
+    type: object
   responses.Validator:
     properties:
       details:
@@ -44,6 +52,21 @@ definitions:
         type: array
       status:
         example: ERROR
+        type: string
+    type: object
+  webmodels.InformationUser:
+    properties:
+      company:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      language:
+        type: string
+      lastName:
         type: string
     type: object
   webmodels.LoginUser:
@@ -159,12 +182,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/responses.Success'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Unauthorized
           schema:
@@ -179,6 +196,34 @@ paths:
       tags:
       - Auth
   /api/v1/users:
+    get:
+      description: Detail a user information in the system.
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.SuccessUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      security:
+      - ApiKeyAuth: []
+      summary: Detail user information EndPoint
+      tags:
+      - Users
     post:
       consumes:
       - application/json

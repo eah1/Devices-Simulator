@@ -4,6 +4,7 @@ package usecase
 import (
 	"device-simulator/app/config"
 	"device-simulator/business/core"
+	"device-simulator/business/core/models"
 	"device-simulator/business/db/store"
 	"device-simulator/business/web/webmodels"
 
@@ -43,6 +44,7 @@ type User interface {
 	RegisterUser(userRegister webmodels.RegisterUser) error
 	SendValidationEmail(email string) error
 	ActivateUser(activateToken string) error
+	GetUser(user models.User) webmodels.InformationUser
 }
 
 // Auth methods auth use case.
