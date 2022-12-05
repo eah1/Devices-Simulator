@@ -138,6 +138,50 @@ const docTemplate = `{
             }
         },
         "/api/v1/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Detail a user information in the system.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Detail user information EndPoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessUser"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new user in the system.",
                 "consumes": [
@@ -292,6 +336,18 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.SuccessUser": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "user": {
+                    "$ref": "#/definitions/webmodels.InformationUser"
+                }
+            }
+        },
         "responses.Validator": {
             "type": "object",
             "properties": {
@@ -304,6 +360,29 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "ERROR"
+                }
+            }
+        },
+        "webmodels.InformationUser": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 }
             }
         },
