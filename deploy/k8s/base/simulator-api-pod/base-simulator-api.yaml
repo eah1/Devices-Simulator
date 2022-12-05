@@ -35,7 +35,7 @@ spec:
             - name: MYC_DEVICES_SIMULATOR_SERVERURI
               value: "https://localhost:2323"
             - name: MYC_DEVICES_SIMULATOR_SENTRY
-              value: "https://202df2322f1c4ef69a710b71f026350e@o913183.ingest.sentry.io/6164847"
+              value: "https://44760870f1944b6897acf28ed2d2355e@o913183.ingest.sentry.io/4504122224607232"
             - name: MYC_DEVICES_SIMULATOR_ENVIRONMENT
               value: "localKind"
             - name: MYC_DEVICES_SIMULATOR_RELEASE

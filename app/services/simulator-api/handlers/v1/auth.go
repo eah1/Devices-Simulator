@@ -1,6 +1,4 @@
 // Package v1 contains the group v1 and subgroups.
-//
-//nolint:wrapcheck
 package v1
 
 import (
@@ -12,6 +10,7 @@ import (
 	"device-simulator/business/web/middlewares/common"
 	"device-simulator/business/web/responses"
 	"device-simulator/business/web/webmodels"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -60,20 +59,20 @@ func (h Auth) Login(ctx echo.Context) error {
 
 	if err := ctx.Bind(userLogin); err != nil {
 		if strings.Contains(err.Error(), "validator:") {
-			return ctx.JSON(http.StatusBadRequest, responses.Validator{
+			return fmt.Errorf("%w", ctx.JSON(http.StatusBadRequest, responses.Validator{
 				Status: "ERROR", Details: strings.Split(err.Error()[10:], ","),
-			})
+			}))
 		}
 
-		return ctx.JSON(errors.ErrorHandlingLogin(err, h.cfg.Log))
+		return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingLogin(err, h.cfg.Log)))
 	}
 
 	token, err := h.usecase.Login(*userLogin)
 	if err != nil {
-		return ctx.JSON(errors.ErrorHandlingLogin(err, h.cfg.Log))
+		return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingLogin(err, h.cfg.Log)))
 	}
 
-	return ctx.JSON(http.StatusOK, responses.SuccessLogin{Status: "OK", Token: token})
+	return fmt.Errorf("%w", ctx.JSON(http.StatusOK, responses.SuccessLogin{Status: "OK", Token: token}))
 }
 
 // Logout user EndPoint.
@@ -83,7 +82,6 @@ func (h Auth) Login(ctx echo.Context) error {
 // @Param Authorization header string true "Authentication header"
 // @Produce json
 // @Success 200 {object} responses.Success
-// @Failure 400 {object} map[string]string
 // @Failure 401 {object} responses.Failed
 // @Failure 500 {object} responses.Failed
 // @Security ApiKeyAuth
@@ -93,8 +91,9 @@ func (h Auth) Logout(ctx echo.Context) error {
 	user, _ := ctx.Get("user").(models.User)
 
 	if err := h.usecase.Logout(token.Raw, user.ID); err != nil {
-		return ctx.JSON(errors.ErrorHandlingLogout(err, h.cfg.Log))
+		return fmt.Errorf("traceid:%s  request.Logout: %w", ctx.Request().Header.Get(echo.HeaderXRequestID),
+			ctx.JSON(errors.ErrorHandlingLogout(err, h.cfg.Log)))
 	}
 
-	return ctx.JSON(http.StatusOK, responses.Success{Status: "OK"})
+	return fmt.Errorf("%w", ctx.JSON(http.StatusOK, responses.Success{Status: "OK"}))
 }

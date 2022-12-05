@@ -214,7 +214,7 @@ func TestAuthLogout(t *testing.T) {
 		t.Logf("\tWhen a sending not token.")
 		{
 			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
-			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 
 		t.Logf("\tWhen a sending format wrong.")
@@ -225,7 +225,7 @@ func TestAuthLogout(t *testing.T) {
 			}
 
 			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, logoutURI, nil, headers, nil))
-			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 
 			headers = map[string]string{
 				"Content-Type":  "application/json; charset=utf-8",
@@ -271,7 +271,7 @@ func TestAuthLogout(t *testing.T) {
 			assert.Equal(t, http.StatusUnauthorized, rec.Code)
 		}
 
-		t.Logf("\tWhen a failed logout witch not exist userId")
+		t.Logf("\tWhen a failed logout witch not exist userId.")
 		{
 			claims := auth.CustomClaims{
 				StandardClaims: auth.NewStandardClaims(),
