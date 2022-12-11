@@ -36,3 +36,11 @@ func RegisterUserWebToUser(userRegister webmodels.RegisterUser) User {
 
 	return *user
 }
+
+// UpdateUserWebToUser converter struct web model webmodels.UpdateUser to User model.
+func UpdateUserWebToUser(userUpdate webmodels.UpdateUser, user *User) {
+	user.FirstName = userUpdate.FirstName
+	user.LastName = userUpdate.LastName
+	user.Company = userUpdate.Company
+	user.Language = userUpdate.Language
+}

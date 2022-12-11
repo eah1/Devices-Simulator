@@ -11,6 +11,14 @@ type RegisterUser struct {
 	Language  string `json:"language"  conform:"trim" validate:"required,oneof=es en fr pt,max=2"`
 }
 
+// UpdateUser contains information needed to update user.
+type UpdateUser struct {
+	FirstName string `json:"firstName" conform:"trim" validate:"required"`
+	LastName  string `json:"lastName"  conform:"trim" validate:"required"`
+	Company   string `json:"company"   conform:"trim" validate:"required"`
+	Language  string `json:"language"  conform:"trim" validate:"required,oneof=es en fr pt,max=2"`
+}
+
 // LoginUser contains information needed to create a login User.
 type LoginUser struct {
 	Username string `json:"username" conform:"trim" validate:"required,email"`

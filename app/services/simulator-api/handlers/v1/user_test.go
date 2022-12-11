@@ -331,3 +331,131 @@ func TestUserDetail(t *testing.T) {
 		}
 	}
 }
+
+func TestUserUpdate(t *testing.T) {
+	t.Parallel()
+
+	testName := "handler-user-update"
+
+	// Setup echo.
+	app := echo.New()
+
+	// set binder custom.
+	app.Binder = &binder.CustomBinder{}
+
+	// Create a configuration handlers.
+	handlerConfig := tt.InitHandlerConfig(t, "t-"+testName)
+
+	newStore := store.NewStore(handlerConfig.Log, handlerConfig.DB)
+
+	// Initializing handles.
+	handlers.Handlers(app, handlerConfig)
+
+	t.Log("Given the need to get user update endpoint.")
+	{
+		t.Logf("\tWhen we send the body fields with the unwanted format.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			validator := new(responses.Validator)
+
+			// all fields empty.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersURI, webmodels.UpdateUser{}, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &validator)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", validator.Status)
+
+			// language format.
+			userUpdate := tt.NewUpdateUser(testName)
+			userUpdate.Language = faker.RandomString(2)
+
+			_, rec = tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersURI, userUpdate, headers, nil))
+
+			err = json.Unmarshal(rec.Body.Bytes(), &validator)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", validator.Status)
+		}
+
+		t.Logf("\tWhen we send a nil body.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			validator := new(responses.Validator)
+
+			// update user.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersURI, nil, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &validator)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", validator.Status)
+		}
+
+		t.Logf("\tWhen a correct update of the user.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			updateUser := tt.NewUpdateUser(testName)
+
+			success := new(responses.Success)
+
+			// update user.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersURI, updateUser, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &success)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, rec.Code)
+			assert.Equal(t, "OK", success.Status)
+		}
+
+		t.Logf("\tWhen a failed update a body data wrong.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			updateUser := tt.NewUpdateUser(testName)
+			updateUser.FirstName = "fistName\000"
+
+			success := new(responses.Success)
+
+			// update user.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersURI, updateUser, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &success)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", success.Status)
+		}
+	}
+}

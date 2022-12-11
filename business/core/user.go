@@ -66,6 +66,15 @@ func (c *UserCore) Create(user models.User) error {
 	return nil
 }
 
+// Update updates a user from system.
+func (c *UserCore) Update(user models.User) error {
+	if err := c.store.UserUpdate(user); err != nil {
+		return fmt.Errorf("core.user.Update: %w", err)
+	}
+
+	return nil
+}
+
 // CreateValidationToken generate validation token from email activation.
 func (c *UserCore) CreateValidationToken(user *models.User) error {
 	validationToken, err := foundation.GenerateToken(sizeToken)
@@ -108,6 +117,16 @@ func (c *UserCore) IsActivate(user models.User) error {
 	}
 
 	return nil
+}
+
+// FindByID search user by id field.
+func (c *UserCore) FindByID(userID string) (models.User, error) {
+	user, err := c.store.UserFindByID(userID)
+	if err != nil {
+		return user, fmt.Errorf("core.user.FindByID: %w", err)
+	}
+
+	return user, nil
 }
 
 // FindByEmail search user by email field.

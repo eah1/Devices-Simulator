@@ -7,6 +7,7 @@ import (
 	mycErrors "device-simulator/business/sys/errors"
 	tt "device-simulator/foundation/test"
 	"errors"
+	"github.com/google/uuid"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -88,6 +89,49 @@ func TestUserCreate(t *testing.T) {
 
 			var customError *mycDBErrors.PsqlError
 			assert.Equal(t, true, errors.As(newCore.User.Create(user), &customError))
+		}
+	}
+}
+
+func TestUserUpdate(t *testing.T) {
+	t.Parallel()
+
+	testName := "core-user-update"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newCore := core.NewCore(newLog, newConfig, newStore, nil)
+
+	t.Log("Given the need to work with a updating user.")
+	{
+		t.Logf("\tWhen a correct updating user.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+			user.FirstName = faker.Name().FirstName()
+			user.LastName = faker.Name().LastName()
+
+			assert.Nil(t, newCore.User.Update(user))
+		}
+
+		t.Logf("\tWhen a updating user not exist.")
+		{
+			user := tt.NewUser(testName)
+			user.FirstName = faker.Name().FirstName()
+			user.LastName = faker.Name().LastName()
+
+			assert.Error(t, mycErrors.ErrElementNotExist, newCore.User.Update(user))
+		}
+
+		t.Logf("\tWhen a updating user data wrong.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+			user.FirstName = "fistName\000"
+			user.LastName = "lastName\000"
+
+			var customError *mycDBErrors.PsqlError
+			assert.Equal(t, true, errors.As(newCore.User.Update(user), &customError))
 		}
 	}
 }
@@ -190,6 +234,46 @@ func TestUserIsActivate(t *testing.T) {
 		{
 			user := tt.NewUser(testName)
 			assert.Error(t, mycErrors.ErrAuthenticationFailed, newCore.User.CheckCredentials(user, faker.RandomString(20)))
+		}
+	}
+}
+
+func TestUserFindByID(t *testing.T) {
+	t.Parallel()
+
+	testName := "core-user-find-by-id"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+	newCore := core.NewCore(newLog, newConfig, newStore, nil)
+
+	t.Log("Given the need to work with a find user by id.")
+	{
+		t.Logf("\tWhen a correct find user by id.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+
+			userFind, err := newCore.User.FindByID(user.ID)
+			assert.Equal(t, user.ID, userFind.ID)
+			assert.Nil(t, err)
+		}
+
+		t.Logf("\tWhen a failed find user by id when id not exist.")
+		{
+			userFind, err := newCore.User.FindByID(uuid.NewString())
+			assert.Empty(t, userFind)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
+		}
+
+		t.Logf("\tWhen a failed find user by id when id wrong format.")
+		{
+			userFind, err := newCore.User.FindByID("id\000")
+
+			var customError *mycDBErrors.PsqlError
+			assert.Empty(t, userFind)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }

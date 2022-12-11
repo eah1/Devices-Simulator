@@ -72,3 +72,20 @@ func (u *UseCase) InformationUser(user models.User) webmodels.InformationUser {
 
 	return *userInformation
 }
+
+// UpdateInformationUser update user use-case.
+func (u *UseCase) UpdateInformationUser(userUpdate webmodels.UpdateUser, userID string) error {
+	user, err := u.core.User.FindByID(userID)
+	if err != nil {
+		return fmt.Errorf("usecase.user.UpdateInformationUser: %w", err)
+	}
+
+	// converter struct web model to model.
+	models.UpdateUserWebToUser(userUpdate, &user)
+
+	if err := u.core.User.Update(user); err != nil {
+		return fmt.Errorf("usecase.user.UpdateInformationUser: %w", err)
+	}
+
+	return nil
+}
