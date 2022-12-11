@@ -6,6 +6,7 @@ import (
 	mycErrors "device-simulator/business/sys/errors"
 	tt "device-simulator/foundation/test"
 	"errors"
+	"github.com/google/uuid"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,6 +50,56 @@ func TestUserCreate(t *testing.T) {
 			user.FirstName = "name\000"
 
 			assert.Error(t, newStore.UserCreate(user))
+		}
+	}
+}
+
+func TestUserFindByID(t *testing.T) {
+	t.Parallel()
+
+	testName := "store-user-find-by-id"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+
+	t.Log("Given the need to work with user find by id in database.")
+	{
+		t.Logf("\tWhen a correct find user by id.")
+		{
+			user := tt.UserCreate(t, newStore, testName)
+
+			userFind, err := newStore.UserFindByID(user.ID)
+			assert.Equal(t, user.ID, userFind.ID)
+			assert.Nil(t, err)
+		}
+
+		t.Logf("\tWhen a not found find user by id which user not exist.")
+		{
+			userFind, err := newStore.UserFindByID(uuid.NewString())
+			assert.Empty(t, userFind)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
+		}
+
+		t.Logf("\tWhen a not found find user by id which format id is wrong.")
+		{
+			userFind, err := newStore.UserFindByID("")
+			assert.Empty(t, userFind)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
+
+			userFind, err = newStore.UserFindByID(faker.RandomString(20))
+			assert.Empty(t, userFind)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
+		}
+
+		t.Logf("\tWhen a not found find user by id which format is not correct.")
+		{
+			userFind, err := newStore.UserFindByID("id\000")
+
+			var customError *mycDBErrors.PsqlError
+			assert.Empty(t, userFind)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }

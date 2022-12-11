@@ -44,7 +44,8 @@ type User interface {
 	RegisterUser(userRegister webmodels.RegisterUser) error
 	SendValidationEmail(email string) error
 	ActivateUser(activateToken string) error
-	GetUser(user models.User) webmodels.InformationUser
+	InformationUser(user models.User) webmodels.InformationUser
+	UpdateInformationUser(userUpdate webmodels.UpdateUser, userID string) error
 }
 
 // Auth methods auth use case.

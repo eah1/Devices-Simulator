@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	models "device-simulator/business/core/models"
+
 	mock "github.com/stretchr/testify/mock"
 
 	webmodels "device-simulator/business/web/webmodels"
@@ -13,6 +15,34 @@ type UserMock struct {
 	mock.Mock
 }
 
+// ActivateUser provides a mock function with given fields: activateToken
+func (_m *UserMock) ActivateUser(activateToken string) error {
+	ret := _m.Called(activateToken)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(activateToken)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// InformationUser provides a mock function with given fields: user
+func (_m *UserMock) InformationUser(user models.User) webmodels.InformationUser {
+	ret := _m.Called(user)
+
+	var r0 webmodels.InformationUser
+	if rf, ok := ret.Get(0).(func(models.User) webmodels.InformationUser); ok {
+		r0 = rf(user)
+	} else {
+		r0 = ret.Get(0).(webmodels.InformationUser)
+	}
+
+	return r0
+}
+
 // RegisterUser provides a mock function with given fields: userRegister
 func (_m *UserMock) RegisterUser(userRegister webmodels.RegisterUser) error {
 	ret := _m.Called(userRegister)
@@ -20,6 +50,34 @@ func (_m *UserMock) RegisterUser(userRegister webmodels.RegisterUser) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(webmodels.RegisterUser) error); ok {
 		r0 = rf(userRegister)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendValidationEmail provides a mock function with given fields: email
+func (_m *UserMock) SendValidationEmail(email string) error {
+	ret := _m.Called(email)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateUser provides a mock function with given fields: userUpdate, userID
+func (_m *UserMock) UpdateInformationUser(userUpdate webmodels.UpdateUser, userID string) error {
+	ret := _m.Called(userUpdate, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(webmodels.UpdateUser, string) error); ok {
+		r0 = rf(userUpdate, userID)
 	} else {
 		r0 = ret.Error(0)
 	}

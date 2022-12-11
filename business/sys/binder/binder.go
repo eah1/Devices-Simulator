@@ -21,7 +21,7 @@ func (cb *CustomBinder) Bind(body interface{}, ctx echo.Context) (err error) {
 
 	// format structure.
 	if err := conform.Strings(body); err != nil {
-		return errors.New("conform:" + err.Error())
+		return fmt.Errorf("binder.Conform: %w", err)
 	}
 
 	if msg, err := validator.IsValid(body); err != nil {

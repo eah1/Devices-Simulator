@@ -111,6 +111,28 @@ definitions:
     - lastName
     - password
     type: object
+  webmodels.UpdateUser:
+    properties:
+      company:
+        type: string
+      firstName:
+        type: string
+      language:
+        enum:
+        - es
+        - en
+        - fr
+        - pt
+        maxLength: 2
+        type: string
+      lastName:
+        type: string
+    required:
+    - company
+    - firstName
+    - language
+    - lastName
+    type: object
 info:
   contact: {}
   description: Devices Simulator documentation API.
@@ -214,7 +236,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/responses.Validator'
+            $ref: '#/definitions/responses.Failed'
         "500":
           description: Internal Server Error
           schema:
@@ -255,6 +277,46 @@ paths:
           schema:
             $ref: '#/definitions/responses.Failed'
       summary: Create user registration EndPoint
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update a user information in the system.
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: UserUpdate
+        in: body
+        name: UserUpdate
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user information EndPoint
       tags:
       - Users
   /api/v1/users/activate/{activateToken}:

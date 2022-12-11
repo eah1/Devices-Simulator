@@ -163,7 +163,69 @@
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a user information in the system.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user information EndPoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "UserUpdate",
+                        "name": "UserUpdate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webmodels.UpdateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
                             "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
                         }
                     },
                     "500": {
@@ -432,6 +494,36 @@
                     "type": "string",
                     "maxLength": 64,
                     "minLength": 8
+                }
+            }
+        },
+        "webmodels.UpdateUser": {
+            "type": "object",
+            "required": [
+                "company",
+                "firstName",
+                "language",
+                "lastName"
+            ],
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string",
+                    "maxLength": 2,
+                    "enum": [
+                        "es",
+                        "en",
+                        "fr",
+                        "pt"
+                    ]
+                },
+                "lastName": {
+                    "type": "string"
                 }
             }
         }

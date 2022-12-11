@@ -21,6 +21,22 @@ func (s *Store) UserCreate(user models.User) error {
 	return nil
 }
 
+// UserFindByID search user by id field.
+func (s *Store) UserFindByID(userID string) (models.User, error) {
+	user := new(models.User)
+
+	res, err := s.engine.ID(userID).Get(user)
+	if err != nil {
+		return models.User{}, fmt.Errorf("store.user.UserFindByID(%s): %w", userID, db.PsqlError(s.log, err))
+	}
+
+	if !res {
+		return models.User{}, fmt.Errorf("store.user.UserFindByID(%s): %w", userID, mycErrors.ErrElementNotExist)
+	}
+
+	return *user, nil
+}
+
 // UserFindByEmail search user by email field.
 func (s *Store) UserFindByEmail(email string) (models.User, error) {
 	var user models.User

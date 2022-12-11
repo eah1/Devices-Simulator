@@ -7,6 +7,7 @@ import (
 	"device-simulator/business/usecase"
 	tt "device-simulator/foundation/test"
 	"errors"
+	"github.com/google/uuid"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -192,6 +193,60 @@ func TestUseCaseInformationUser(t *testing.T) {
 			assert.Equal(t, userInformationWebModel.Email, userDB.Email)
 			assert.Equal(t, userInformationWebModel.Company, userDB.Company)
 			assert.Equal(t, userInformationWebModel.Language, userDB.Language)
+		}
+	}
+}
+
+func TestUseCaseUpdateInformationUser(t *testing.T) {
+	t.Parallel()
+
+	testName := "use-case-update-user"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+
+	newUseCase := usecase.NewUseCase(
+		newLog, newConfig, newStore, tt.InitClientQueue(t, newConfig), tt.InitEmailConfig(t, newConfig))
+
+	t.Log("Given the need to work with the update user use case.")
+	{
+		t.Logf("\tWhen a correct a update user.")
+		{
+			// Create a register user and validation.
+			email, _ := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
+
+			// find user in database.
+			userDB, err := newStore.UserFindByEmail(email)
+			require.NoError(t, err)
+
+			userUpdate := tt.NewUpdateUser(testName)
+
+			assert.Nil(t, newUseCase.UpdateInformationUser(userUpdate, userDB.ID))
+		}
+
+		t.Logf("\tWhen a failed update user when user not exist.")
+		{
+			userUpdate := tt.NewUpdateUser(testName)
+
+			assert.Error(t, mycErrors.ErrElementNotExist, newUseCase.UpdateInformationUser(userUpdate, uuid.NewString()))
+		}
+
+		t.Logf("\tWhen a failed update user when data user is wrong.")
+		{
+			// Create a register user and validation.
+			email, _ := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
+
+			// find user in database.
+			userDB, err := newStore.UserFindByEmail(email)
+			require.NoError(t, err)
+
+			userUpdate := tt.NewUpdateUser(testName)
+			userUpdate.FirstName = "fistName\000"
+
+			var customError *mycDBErrors.PsqlError
+			assert.Equal(t, true, errors.As(newUseCase.UpdateInformationUser(userUpdate, userDB.ID), &customError))
 		}
 	}
 }

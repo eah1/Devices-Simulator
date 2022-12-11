@@ -23,3 +23,14 @@ func NewRegistrationUser(testName string) webmodels.RegisterUser {
 
 	return *userRegistration
 }
+
+// NewUpdateUser created new user update model.
+func NewUpdateUser(testName string) webmodels.UpdateUser {
+	userUpdate := new(webmodels.UpdateUser)
+	userUpdate.FirstName = faker.Name().FirstName() + "_" + testName
+	userUpdate.LastName = faker.Name().LastName() + "_" + testName
+	userUpdate.Language = faker.RandomChoice([]string{"en", "es", "fr", "pt"})
+	userUpdate.Company = faker.Company().Name()
+
+	return *userUpdate
+}
