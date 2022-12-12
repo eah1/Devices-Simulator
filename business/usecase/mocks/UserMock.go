@@ -71,12 +71,26 @@ func (_m *UserMock) SendValidationEmail(email string) error {
 	return r0
 }
 
-// UpdateUser provides a mock function with given fields: userUpdate, userID
+// UpdateInformationUser provides a mock function with given fields: userUpdate, userID
 func (_m *UserMock) UpdateInformationUser(userUpdate webmodels.UpdateUser, userID string) error {
 	ret := _m.Called(userUpdate, userID)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(webmodels.UpdateUser, string) error); ok {
+		r0 = rf(userUpdate, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdatePasswordUser provides a mock function with given fields: userUpdate, userID
+func (_m *UserMock) UpdatePasswordUser(userUpdate webmodels.UpdatePasswordUser, userID string) error {
+	ret := _m.Called(userUpdate, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(webmodels.UpdatePasswordUser, string) error); ok {
 		r0 = rf(userUpdate, userID)
 	} else {
 		r0 = ret.Error(0)

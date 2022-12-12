@@ -109,3 +109,28 @@ func ErrorHandlingUpdateUser(err error, log *zap.SugaredLogger) (int, responses.
 		return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
 	}
 }
+
+// ErrorHandlingUpdatePasswordUser error handling user update password codes.
+func ErrorHandlingUpdatePasswordUser(err error, log *zap.SugaredLogger) (int, responses.Failed) {
+	log.Error(err)
+
+	var customError *mycDBErrors.PsqlError
+
+	switch {
+	case errors.Is(err, mycErrors.ErrElementNotExist) || errors.Is(err, mycErrors.ErrAuthenticationFailed):
+		return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
+	case errors.Is(err, mycErrors.ErrAuthenticationFailed):
+		return http.StatusUnauthorized, responses.Failed{Status: "ERROR", Error: "Authentication failed"}
+	case errors.As(err, &customError):
+		switch customError.CodeSQL {
+		case "22021":
+			return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
+		default:
+			return http.StatusBadRequest, responses.Failed{Status: "ERROR", Error: "Request failed"}
+		}
+	default:
+		sentryGo.CaptureException(err)
+
+		return http.StatusInternalServerError, responses.Failed{Status: "ERROR", Error: "Internal server error"}
+	}
+}

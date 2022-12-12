@@ -111,6 +111,20 @@ definitions:
     - lastName
     - password
     type: object
+  webmodels.UpdatePasswordUser:
+    properties:
+      currentPassword:
+        maxLength: 64
+        minLength: 8
+        type: string
+      newPassword:
+        maxLength: 64
+        minLength: 8
+        type: string
+    required:
+    - currentPassword
+    - newPassword
+    type: object
   webmodels.UpdateUser:
     properties:
       company:
@@ -348,6 +362,47 @@ paths:
           schema:
             $ref: '#/definitions/responses.Failed'
       summary: Activate user activation EndPoint
+      tags:
+      - Users
+  /api/v1/users/credentials/changePassword:
+    put:
+      consumes:
+      - application/json
+      description: ChangePassword of the user in the system.
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: UserPasswordUpdate
+        in: body
+        name: UserPasswordUpdate
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.UpdatePasswordUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      security:
+      - ApiKeyAuth: []
+      summary: ChangePassword user EndPoint
       tags:
       - Users
 securityDefinitions:

@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	usersURI         = "/api/v1/users"
-	usersActivateURI = "/api/v1/users/activate/"
+	usersURI                  = "/api/v1/users"
+	usersActivateURI          = "/api/v1/users/activate/"
+	usersCredentialsChangeURI = "/api/v1/users/credentials/changePassword"
 )
 
 func TestUserCreate(t *testing.T) {
@@ -456,6 +457,109 @@ func TestUserUpdate(t *testing.T) {
 
 			assert.Equal(t, http.StatusBadRequest, rec.Code)
 			assert.Equal(t, "ERROR", success.Status)
+		}
+	}
+}
+
+func TestUserChangePassword(t *testing.T) {
+	t.Parallel()
+
+	testName := "handler-user-update-password"
+
+	// Setup echo.
+	app := echo.New()
+
+	// set binder custom.
+	app.Binder = &binder.CustomBinder{}
+
+	// Create a configuration handlers.
+	handlerConfig := tt.InitHandlerConfig(t, "t-"+testName)
+
+	newStore := store.NewStore(handlerConfig.Log, handlerConfig.DB)
+
+	// Initializing handles.
+	handlers.Handlers(app, handlerConfig)
+
+	t.Log("Given the need to get user update password endpoint.")
+	{
+		t.Logf("\tWhen we send the body fields with the unwanted format.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			validator := new(responses.Validator)
+
+			// all fields empty.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersCredentialsChangeURI, webmodels.UpdatePasswordUser{}, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &validator)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", validator.Status)
+
+			// newPassword equal to currentPassword
+			userUpdatePassword := tt.NewUpdatePasswordUser(password)
+			userUpdatePassword.NewPassword = password
+
+			_, rec = tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersCredentialsChangeURI, userUpdatePassword, headers, nil))
+
+			err = json.Unmarshal(rec.Body.Bytes(), &validator)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", validator.Status)
+		}
+
+		t.Logf("\tWhen we send a nil body.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			validator := new(responses.Validator)
+
+			// update user.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersCredentialsChangeURI, nil, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &validator)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Equal(t, "ERROR", validator.Status)
+		}
+
+		t.Logf("\tWhen a correct update password of the user.")
+		{
+			email, password := tt.RegisterUser(t, app, testName)
+			tt.ValidationUser(t, app, newStore, email)
+
+			headers := map[string]string{
+				"Content-Type":  "application/json; charset=utf-8",
+				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
+			}
+
+			updatePasswordUser := tt.NewUpdatePasswordUser(password)
+
+			success := new(responses.Success)
+
+			// update user.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPut, usersCredentialsChangeURI, updatePasswordUser, headers, nil))
+
+			err := json.Unmarshal(rec.Body.Bytes(), &success)
+			require.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, rec.Code)
+			assert.Equal(t, "OK", success.Status)
 		}
 	}
 }

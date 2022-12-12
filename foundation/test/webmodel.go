@@ -34,3 +34,12 @@ func NewUpdateUser(testName string) webmodels.UpdateUser {
 
 	return *userUpdate
 }
+
+// NewUpdatePasswordUser created new user update password model.
+func NewUpdatePasswordUser(currentPassword string) webmodels.UpdatePasswordUser {
+	userUpdatePassword := new(webmodels.UpdatePasswordUser)
+	userUpdatePassword.CurrentPassword = currentPassword
+	userUpdatePassword.NewPassword = faker.Internet().Password(minPassword, maxPassword)
+
+	return *userUpdatePassword
+}

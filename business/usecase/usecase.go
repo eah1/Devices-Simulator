@@ -46,6 +46,7 @@ type User interface {
 	ActivateUser(activateToken string) error
 	InformationUser(user models.User) webmodels.InformationUser
 	UpdateInformationUser(userUpdate webmodels.UpdateUser, userID string) error
+	UpdatePasswordUser(userUpdate webmodels.UpdatePasswordUser, userID string) error
 }
 
 // Auth methods auth use case.

@@ -1,4 +1,6 @@
 // Package config error translation validator.
+//
+//nolint:ireturn
 package config
 
 import (
@@ -9,8 +11,6 @@ import (
 )
 
 // CreateEnTranslation configuration error translation English.
-//
-//nolint:ireturn
 func CreateEnTranslation(v *validator.Validate) ut.Translator {
 	uni := ut.New(en.New(), en.New())
 

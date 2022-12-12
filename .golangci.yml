@@ -1,6 +1,8 @@
 run:
   timeout: 5m
 linters-settings:
+  dupl:
+    threshold: 200
   funlen:
     lines: 85
   tagliatelle:
@@ -95,3 +97,4 @@ issues:
         - dupl
         - gofumpt
         - goerr113
+        - gosec
