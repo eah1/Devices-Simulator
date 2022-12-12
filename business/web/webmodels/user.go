@@ -1,4 +1,6 @@
 // Package webmodels contains core business API.
+//
+//nolint:lll
 package webmodels
 
 // RegisterUser contains information needed to create a new User.
@@ -17,6 +19,12 @@ type UpdateUser struct {
 	LastName  string `json:"lastName"  conform:"trim" validate:"required"`
 	Company   string `json:"company"   conform:"trim" validate:"required"`
 	Language  string `json:"language"  conform:"trim" validate:"required,oneof=es en fr pt,max=2"`
+}
+
+// UpdatePasswordUser contains information needed to update user password.
+type UpdatePasswordUser struct {
+	CurrentPassword string `json:"currentPassword"  conform:"trim" validate:"required,min=8,max=64,printascii"`
+	NewPassword     string `json:"newPassword"      conform:"trim" validate:"required,min=8,max=64,printascii,nefield=CurrentPassword"`
 }
 
 // LoginUser contains information needed to create a login User.

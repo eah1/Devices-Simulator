@@ -43,6 +43,8 @@ func NewUserServiceGroup(app *echo.Group, prefix string, handlers User) {
 	users.POST("/activate/:activateToken", handlers.Activate)
 	users.GET("", handlers.Detail, handlers.cfg.JWTConfig, handlers.cfg.AuthorizationUser)
 	users.PUT("", handlers.Update, handlers.cfg.JWTConfig, handlers.cfg.AuthorizationUser)
+	users.PUT("/credentials/changePassword", handlers.ChangePassword,
+		handlers.cfg.JWTConfig, handlers.cfg.AuthorizationUser)
 }
 
 // Create user create EndPoint.
@@ -150,6 +152,42 @@ func (h User) Update(ctx echo.Context) error {
 
 	if err := h.usecase.UpdateInformationUser(*userUpdate, user.ID); err != nil {
 		return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingUpdateUser(err, h.cfg.Log)))
+	}
+
+	return ctx.JSON(http.StatusOK, responses.Success{Status: "OK"})
+}
+
+// ChangePassword user EndPoint.
+// @Summary ChangePassword user EndPoint
+// @Tags Users
+// @Description ChangePassword of the user in the system.
+// @Param Authorization header string true "Authentication header"
+// @Param UserPasswordUpdate body webmodels.UpdatePasswordUser true "UserPasswordUpdate"
+// @Accept json
+// @Produce json
+// @Success 200 {object} responses.Success
+// @Failure 400 {object} responses.Validator
+// @Failure 401 {object} responses.Failed
+// @Failure 500 {object} responses.Failed
+// @Security ApiKeyAuth
+// @Router /api/v1/users/credentials/changePassword [put].
+func (h User) ChangePassword(ctx echo.Context) error {
+	user, _ := ctx.Get("user").(models.User)
+
+	userUpdatePassword := new(webmodels.UpdatePasswordUser)
+
+	if err := ctx.Bind(userUpdatePassword); err != nil {
+		if strings.Contains(err.Error(), "validator:") {
+			return ctx.JSON(http.StatusBadRequest, responses.Validator{
+				Status: "ERROR", Details: strings.Split(err.Error()[10:], ","),
+			})
+		}
+
+		return ctx.JSON(errors.ErrorHandlingUpdatePasswordUser(err, h.cfg.Log))
+	}
+
+	if err := h.usecase.UpdatePasswordUser(*userUpdatePassword, user.ID); err != nil {
+		return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingUpdatePasswordUser(err, h.cfg.Log)))
 	}
 
 	return ctx.JSON(http.StatusOK, responses.Success{Status: "OK"})

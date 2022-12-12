@@ -250,3 +250,55 @@ func TestUseCaseUpdateInformationUser(t *testing.T) {
 		}
 	}
 }
+
+func TestUseCaseUpdatePasswordUser(t *testing.T) {
+	t.Parallel()
+
+	testName := "use-case-update-password-user"
+
+	// Create store.
+	newLog := tt.InitLogger(t, "t-"+testName)
+	newConfig := tt.InitConfig()
+	newStore := store.NewStore(newLog, tt.InitDatabase(t, newConfig, newLog))
+
+	newUseCase := usecase.NewUseCase(
+		newLog, newConfig, newStore, tt.InitClientQueue(t, newConfig), tt.InitEmailConfig(t, newConfig))
+
+	t.Log("Given the need to work with the update password user use case.")
+	{
+		t.Logf("\tWhen a correct a update password user.")
+		{
+			// Create a register user and validation.
+			email, password := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
+
+			// find user in database.
+			userDB, err := newStore.UserFindByEmail(email)
+			require.NoError(t, err)
+
+			userUpdatePassword := tt.NewUpdatePasswordUser(password)
+
+			assert.Nil(t, newUseCase.UpdatePasswordUser(userUpdatePassword, userDB.ID))
+		}
+
+		t.Logf("\tWhen a failed update password user when user not exist.")
+		{
+			userUpdatePassword := tt.NewUpdatePasswordUser(faker.RandomString(10))
+
+			assert.Error(t, mycErrors.ErrElementNotExist, newUseCase.UpdatePasswordUser(userUpdatePassword, uuid.NewString()))
+		}
+
+		t.Logf("\tWhen a failed update password user when user not correct password.")
+		{
+			// Create a register user and validation.
+			email, _ := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
+
+			// find user in database.
+			userDB, err := newStore.UserFindByEmail(email)
+			require.NoError(t, err)
+
+			userUpdatePassword := tt.NewUpdatePasswordUser(faker.RandomString(10))
+
+			assert.Error(t, mycErrors.ErrAuthenticationFailed, newUseCase.UpdatePasswordUser(userUpdatePassword, userDB.ID))
+		}
+	}
+}

@@ -89,3 +89,25 @@ func (u *UseCase) UpdateInformationUser(userUpdate webmodels.UpdateUser, userID 
 
 	return nil
 }
+
+// UpdatePasswordUser update password user use-case.
+func (u *UseCase) UpdatePasswordUser(updatePassword webmodels.UpdatePasswordUser, userID string) error {
+	user, err := u.core.User.FindByID(userID)
+	if err != nil {
+		return fmt.Errorf("usecase.user.UpdatePasswordUser: %w", err)
+	}
+
+	if err := u.core.User.CheckCredentials(user, updatePassword.CurrentPassword); err != nil {
+		return fmt.Errorf("usecase.user.UpdatePasswordUser: %w", err)
+	}
+
+	if err := u.core.User.GeneratePassword(updatePassword.NewPassword, &user); err != nil {
+		return fmt.Errorf("usecase.user.UpdatePasswordUser: %w", err)
+	}
+
+	if err := u.core.User.Update(user); err != nil {
+		return fmt.Errorf("usecase.user.UpdatePasswordUser: %w", err)
+	}
+
+	return nil
+}
