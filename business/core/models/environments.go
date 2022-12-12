@@ -12,3 +12,7 @@ type Environment struct {
 	CreatedAt time.Time              `xorm:"created" json:"-"`
 	UpdatedAt time.Time              `xorm:"updated" json:"-"`
 }
+
+func (*Environment) TableName() string {
+	return "environments"
+}

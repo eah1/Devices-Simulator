@@ -31,3 +31,15 @@ func AuthenticationCreate(t *testing.T, store store.Store, testName, userID stri
 
 	return authentication
 }
+
+// EnvironmentCreate create a environment in database.
+func EnvironmentCreate(t *testing.T, store store.Store, testName, userID string) models.Environment {
+	t.Helper()
+
+	environment := NewEnvironment(testName, userID)
+
+	err := store.EnvironmentCreate(environment)
+	require.NoError(t, err)
+
+	return environment
+}

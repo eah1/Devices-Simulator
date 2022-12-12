@@ -54,3 +54,13 @@ func NewAuthentication(testName, userID string) models.Authentication {
 
 	return *authentication
 }
+
+func NewEnvironment(testName, userID string) models.Environment {
+	environment := new(models.Environment)
+	environment.ID = uuid.NewString()
+	environment.UserID = userID
+	environment.Name = testName + "_" + faker.Name().Name()
+	environment.Vars = map[string]interface{}{}
+
+	return *environment
+}
