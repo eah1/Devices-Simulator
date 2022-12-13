@@ -20,6 +20,14 @@ definitions:
         example: OK
         type: string
     type: object
+  responses.SuccessEnvironment:
+    properties:
+      environment:
+        $ref: '#/definitions/webmodels.InformationEnvironment'
+      status:
+        example: OK
+        type: string
+    type: object
   responses.SuccessHealth:
     properties:
       health:
@@ -53,6 +61,43 @@ definitions:
       status:
         example: ERROR
         type: string
+    type: object
+  webmodels.CreateEnvironment:
+    properties:
+      name:
+        type: string
+      vars:
+        items:
+          $ref: '#/definitions/webmodels.EnvironmentVars'
+        minItems: 1
+        type: array
+    required:
+    - name
+    - vars
+    type: object
+  webmodels.EnvironmentVars:
+    properties:
+      key:
+        type: string
+      var:
+        type: string
+    required:
+    - key
+    - var
+    type: object
+  webmodels.InformationEnvironment:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      vars:
+        additionalProperties:
+          type: string
+        example:
+          key: value
+          key2: value2
+        type: object
     type: object
   webmodels.InformationUser:
     properties:
@@ -231,6 +276,45 @@ paths:
       summary: Logout user EndPoint
       tags:
       - Auth
+  /api/v1/environments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new environment in the system.
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: EnvironmentCreate
+        in: body
+        name: EnvironmentCreate
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.CreateEnvironment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.SuccessEnvironment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      summary: Create environment EndPoint
+      tags:
+      - Environments
   /api/v1/users:
     get:
       description: Detail a user information in the system.

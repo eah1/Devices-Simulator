@@ -1,13 +1,15 @@
 package usecase_test
 
 import (
+	"device-simulator/business/web/webmodels"
+	"errors"
+	"testing"
+
 	mycDBErrors "device-simulator/business/db/errors"
 	"device-simulator/business/db/store"
 	mycErrors "device-simulator/business/sys/errors"
 	"device-simulator/business/usecase"
 	tt "device-simulator/foundation/test"
-	"errors"
-	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -40,14 +42,18 @@ func TestUseCaseCreateEnvironment(t *testing.T) {
 
 			environmentCreate := tt.NewCreateEnvironment(testName)
 
-			assert.Nil(t, newUseCase.CreateEnvironment(environmentCreate, userDB.ID))
+			newEnvironment, err := newUseCase.CreateEnvironment(environmentCreate, userDB.ID)
+			assert.NotEmpty(t, newEnvironment)
+			assert.Nil(t, err)
 		}
 
 		t.Logf("\tWhen a failed create environment when user not exist.")
 		{
 			environmentCreate := tt.NewCreateEnvironment(testName)
 
-			assert.Error(t, mycErrors.ErrElementNotExist, newUseCase.CreateEnvironment(environmentCreate, uuid.NewString()))
+			newEnvironment, err := newUseCase.CreateEnvironment(environmentCreate, uuid.NewString())
+			assert.Equal(t, webmodels.InformationEnvironment{}, newEnvironment)
+			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
 		t.Logf("\tWhen a failed create environment when data environment is wrong.")
@@ -63,7 +69,10 @@ func TestUseCaseCreateEnvironment(t *testing.T) {
 			environmentCreate.Name = "name\000"
 
 			var customError *mycDBErrors.PsqlError
-			assert.Equal(t, true, errors.As(newUseCase.CreateEnvironment(environmentCreate, userDB.ID), &customError))
+
+			newEnvironment, err := newUseCase.CreateEnvironment(environmentCreate, userDB.ID)
+			assert.Equal(t, webmodels.InformationEnvironment{}, newEnvironment)
+			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}
 }

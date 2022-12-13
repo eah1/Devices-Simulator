@@ -7,13 +7,15 @@ import (
 )
 
 // CreateEnvironment create environment case-use.
-func (u *UseCase) CreateEnvironment(createEnvironment webmodels.CreateEnvironment, userID string) error {
+func (u *UseCase) CreateEnvironment(
+	createEnvironment webmodels.CreateEnvironment, userID string,
+) (webmodels.InformationEnvironment, error) {
 	environment := models.CreateEnvironmentWebToEnvironment(createEnvironment)
 	environment.UserID = userID
 
-	if err := u.core.Environment.Create(environment); err != nil {
-		return fmt.Errorf("usecase.environment.Create: %w", err)
+	if err := u.core.Environment.Create(&environment); err != nil {
+		return webmodels.InformationEnvironment{}, fmt.Errorf("usecase.environment.Create: %w", err)
 	}
 
-	return nil
+	return models.EnvironmentModelToWeb(environment), nil
 }

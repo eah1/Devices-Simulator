@@ -51,7 +51,8 @@ type User interface {
 
 // Environment methods environment use case.
 type Environment interface {
-	CreateEnvironment(createEnvironment webmodels.CreateEnvironment, userID string) error
+	CreateEnvironment(createEnvironment webmodels.CreateEnvironment,
+		userID string) (webmodels.InformationEnvironment, error)
 }
 
 // Auth methods auth use case.

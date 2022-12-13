@@ -137,6 +137,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/environments": {
+            "post": {
+                "description": "Create a new environment in the system.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Environments"
+                ],
+                "summary": "Create environment EndPoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "EnvironmentCreate",
+                        "name": "EnvironmentCreate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webmodels.CreateEnvironment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessEnvironment"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users": {
             "get": {
                 "security": [
@@ -438,6 +497,18 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.SuccessEnvironment": {
+            "type": "object",
+            "properties": {
+                "environment": {
+                    "$ref": "#/definitions/webmodels.InformationEnvironment"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
         "responses.SuccessHealth": {
             "type": "object",
             "properties": {
@@ -486,6 +557,61 @@ const docTemplate = `{
                 "status": {
                     "type": "string",
                     "example": "ERROR"
+                }
+            }
+        },
+        "webmodels.CreateEnvironment": {
+            "type": "object",
+            "required": [
+                "name",
+                "vars"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "vars": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/webmodels.EnvironmentVars"
+                    }
+                }
+            }
+        },
+        "webmodels.EnvironmentVars": {
+            "type": "object",
+            "required": [
+                "key",
+                "var"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "var": {
+                    "type": "string"
+                }
+            }
+        },
+        "webmodels.InformationEnvironment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "vars": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "key": "value",
+                        "key2": "value2"
+                    }
                 }
             }
         },

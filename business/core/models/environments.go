@@ -33,3 +33,13 @@ func CreateEnvironmentWebToEnvironment(createEnvironment webmodels.CreateEnviron
 
 	return *environment
 }
+
+// EnvironmentModelToWeb convert struct model Environment to webmodels.InformationEnvironment.
+func EnvironmentModelToWeb(environment Environment) webmodels.InformationEnvironment {
+	environmentInfo := new(webmodels.InformationEnvironment)
+	environmentInfo.ID = environment.ID
+	environmentInfo.Name = environment.Name
+	environmentInfo.Vars = environment.Vars
+
+	return *environmentInfo
+}

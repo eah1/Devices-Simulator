@@ -30,10 +30,10 @@ func NewEnvironmentCore(log *zap.SugaredLogger, config config.Config, store stor
 }
 
 // Create insert a new environment into the system.
-func (c *EnvironmentCore) Create(environment models.Environment) error {
+func (c *EnvironmentCore) Create(environment *models.Environment) error {
 	environment.ID = uuid.NewString()
 
-	if err := c.store.EnvironmentCreate(environment); err != nil {
+	if err := c.store.EnvironmentCreate(*environment); err != nil {
 		return fmt.Errorf("core.environment.create: %w", err)
 	}
 

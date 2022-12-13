@@ -1,12 +1,13 @@
 package store_test
 
 import (
+	"testing"
+
 	"device-simulator/business/db/store"
 	tt "device-simulator/foundation/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
-	"testing"
 )
 
 func TestEnvironmentCreate(t *testing.T) {
