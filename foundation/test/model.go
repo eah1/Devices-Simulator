@@ -60,7 +60,9 @@ func NewEnvironment(testName, userID string) models.Environment {
 	environment.ID = uuid.NewString()
 	environment.UserID = userID
 	environment.Name = testName + "_" + faker.Name().Name()
-	environment.Vars = map[string]interface{}{}
+	environment.Vars = map[string]interface{}{
+		"testName": testName,
+	}
 
 	return *environment
 }
