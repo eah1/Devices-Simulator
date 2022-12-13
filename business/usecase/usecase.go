@@ -49,6 +49,12 @@ type User interface {
 	UpdatePasswordUser(userUpdate webmodels.UpdatePasswordUser, userID string) error
 }
 
+// Environment methods environment use case.
+type Environment interface {
+	CreateEnvironment(createEnvironment webmodels.CreateEnvironment,
+		userID string) (webmodels.InformationEnvironment, error)
+}
+
 // Auth methods auth use case.
 type Auth interface {
 	Login(userLogin webmodels.LoginUser) (string, error)

@@ -15,6 +15,7 @@ type Core struct {
 	EmailSender    EmailSenderCore
 	Auth           AuthCore
 	Authentication AuthenticationCore
+	Environment    EnvironmentCore
 }
 
 // NewCore constructs a core group.
@@ -24,6 +25,7 @@ func NewCore(log *zap.SugaredLogger, config config.Config, store store.Store, em
 		EmailSender:    NewEmailSenderCore(log, config, store, emailSender, nil),
 		Auth:           NewAuthCore(log, config, nil),
 		Authentication: NewAuthenticationCore(log, config, store, nil),
+		Environment:    NewEnvironmentCore(log, config, store, nil),
 	}
 
 	return Core{
@@ -31,5 +33,6 @@ func NewCore(log *zap.SugaredLogger, config config.Config, store store.Store, em
 		EmailSender:    NewEmailSenderCore(log, config, store, emailSender, core),
 		Auth:           NewAuthCore(log, config, core),
 		Authentication: NewAuthenticationCore(log, config, store, core),
+		Environment:    NewEnvironmentCore(log, config, store, core),
 	}
 }
