@@ -9,6 +9,7 @@ import (
 const (
 	minPassword = 8
 	maxPassword = 64
+	randomise   = 10
 )
 
 // NewRegistrationUser created new user registration model.
@@ -42,4 +43,16 @@ func NewUpdatePasswordUser(currentPassword string) webmodels.UpdatePasswordUser 
 	userUpdatePassword.NewPassword = faker.Internet().Password(minPassword, maxPassword)
 
 	return *userUpdatePassword
+}
+
+// NewCreateEnvironment created new environment model.
+func NewCreateEnvironment(testName string) webmodels.CreateEnvironment {
+	createEnvironment := new(webmodels.CreateEnvironment)
+	createEnvironment.Name = faker.Name().Name() + "_" + testName
+	createEnvironment.Vars = append(createEnvironment.Vars,
+		&webmodels.EnvironmentVars{Key: "URI", Var: faker.Internet().Url()})
+	createEnvironment.Vars = append(createEnvironment.Vars,
+		&webmodels.EnvironmentVars{Key: "SECRET_KEY", Var: faker.RandomString(randomise)})
+
+	return *createEnvironment
 }
