@@ -57,7 +57,7 @@ func (c *UserCore) CheckCredentials(user models.User, password string) error {
 
 // Create insert a new user into the system.
 func (c *UserCore) Create(user models.User) error {
-	user.ID = uuid.New().String()
+	user.ID = uuid.NewString()
 
 	if err := c.store.UserCreate(user); err != nil {
 		return fmt.Errorf("core.user.Create: %w", err)

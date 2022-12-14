@@ -35,7 +35,7 @@ func NewAuthenticationCore(
 
 // Create insert a new authentication into the system.
 func (c *AuthenticationCore) Create(authentication models.Authentication) error {
-	authentication.ID = uuid.New().String()
+	authentication.ID = uuid.NewString()
 
 	if err := c.store.AuthenticationCreate(authentication); err != nil {
 		return fmt.Errorf("core.authentication.create: %w", err)

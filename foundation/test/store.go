@@ -43,3 +43,15 @@ func EnvironmentCreate(t *testing.T, store store.Store, testName, userID string)
 
 	return environment
 }
+
+// DeviceConfigCreate create a device config in database.
+func DeviceConfigCreate(t *testing.T, store store.Store, testName, userID string) models.DeviceConfig {
+	t.Helper()
+
+	deviceConfig := NewDeviceConfig(testName, userID)
+
+	err := store.DeviceConfigCreate(deviceConfig)
+	require.NoError(t, err)
+
+	return deviceConfig
+}

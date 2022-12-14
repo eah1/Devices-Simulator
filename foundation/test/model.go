@@ -20,7 +20,7 @@ func NewUser(testName string) models.User {
 	hash, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 
 	user := new(models.User)
-	user.ID = uuid.New().String()
+	user.ID = uuid.NewString()
 	user.FirstName = faker.Name().FirstName() + "_" + testName
 	user.LastName = faker.Name().LastName() + "_" + testName
 	user.Email = faker.Internet().Email()
@@ -55,6 +55,7 @@ func NewAuthentication(testName, userID string) models.Authentication {
 	return *authentication
 }
 
+// NewEnvironment created new environment model.
 func NewEnvironment(testName, userID string) models.Environment {
 	environment := new(models.Environment)
 	environment.ID = uuid.NewString()
@@ -65,4 +66,36 @@ func NewEnvironment(testName, userID string) models.Environment {
 	}
 
 	return *environment
+}
+
+// NewDeviceConfig created new device config model.
+func NewDeviceConfig(testName, userID string) models.DeviceConfig {
+	deviceConfig := new(models.DeviceConfig)
+	deviceConfig.ID = uuid.NewString()
+	deviceConfig.Name = testName + "_" + faker.Name().Name()
+
+	deviceConfig.Vars = map[string]interface{}{
+		"testName": testName,
+	}
+
+	deviceConfig.MetricsFixed = map[string]interface{}{
+		"Voltage": map[string]interface{}{
+			"minValue": "219",
+			"maxValue": "220",
+		},
+	}
+
+	deviceConfig.MetricsAccumulated = map[string]interface{}{
+		"PH_CON_TOT": map[string]interface{}{
+			"minValue": "5",
+			"maxValue": "10",
+		},
+	}
+
+	deviceConfig.TypeSend = "MQTT"
+	deviceConfig.Payload = "{\"id\": \"$SERIAL_NUMBER\",\"telemetry\":" +
+		"{\"PH_CON_TOT\": $PH_CON_TOT},\"deviceType\": \"DEVICE\":}"
+	deviceConfig.UserID = userID
+
+	return *deviceConfig
 }

@@ -15,3 +15,7 @@ type DeviceConfig struct {
 	CreatedAt          time.Time              `xorm:"created"                   json:"-"`
 	UpdatedAt          time.Time              `xorm:"updated"                   json:"-"`
 }
+
+func (*DeviceConfig) TableName() string {
+	return "devices_config"
+}

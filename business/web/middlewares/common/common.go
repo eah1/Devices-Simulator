@@ -34,7 +34,7 @@ func AddCommonMiddlewares(app *echo.Echo, log *zap.SugaredLogger) {
 func GenerateTraceID() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			ctx.Request().Header.Set(echo.HeaderXRequestID, uuid.New().String())
+			ctx.Request().Header.Set(echo.HeaderXRequestID, uuid.NewString())
 
 			if err := next(ctx); err != nil {
 				ctx.Error(err)
