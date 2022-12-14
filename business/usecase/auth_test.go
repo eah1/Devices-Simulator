@@ -8,9 +8,9 @@ import (
 	"device-simulator/business/web/webmodels"
 	tt "device-simulator/foundation/test"
 	"errors"
-	"github.com/google/uuid"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"syreclabs.com/go/faker"

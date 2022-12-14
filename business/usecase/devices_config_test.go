@@ -8,17 +8,17 @@ import (
 	"device-simulator/business/web/webmodels"
 	tt "device-simulator/foundation/test"
 	"errors"
+	"github.com/google/uuid"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestUseCaseCreateEnvironment(t *testing.T) {
+func TestUseCaseCreateDeviceConfig(t *testing.T) {
 	t.Parallel()
 
-	testName := "use-case-create-environment"
+	testName := "use-case-create-devices-config"
 
 	// Create store.
 	newLog := tt.InitLogger(t, "t-"+testName)
@@ -28,9 +28,9 @@ func TestUseCaseCreateEnvironment(t *testing.T) {
 	newUseCase := usecase.NewUseCase(
 		newLog, newConfig, newStore, tt.InitClientQueue(t, newConfig), tt.InitEmailConfig(t, newConfig))
 
-	t.Log("Given the need to work with the create environment use case.")
+	t.Log("Given the need to work with the create devices config use case.")
 	{
-		t.Logf("\tWhen a correct a create environment.")
+		t.Logf("\tWhen a correct a create device config.")
 		{
 			// Create a register user and validation.
 			email, _ := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
@@ -39,23 +39,24 @@ func TestUseCaseCreateEnvironment(t *testing.T) {
 			userDB, err := newStore.UserFindByEmail(email)
 			require.NoError(t, err)
 
-			environmentCreate := tt.NewCreateEnvironment(testName)
+			deviceConfigCreate := tt.NewCreateDevicesConfig(testName)
 
-			newEnvironment, err := newUseCase.CreateEnvironment(environmentCreate, userDB.ID)
-			assert.NotEmpty(t, newEnvironment)
+			newDeviceConfig, err := newUseCase.CreateDeviceConfig(deviceConfigCreate, userDB.ID)
+			assert.NotEmpty(t, newDeviceConfig)
 			assert.Nil(t, err)
+			assert.Equal(t, deviceConfigCreate.Name, newDeviceConfig.Name)
 		}
 
-		t.Logf("\tWhen a failed create environment when user not exist.")
+		t.Logf("\tWhen a failed create device config when user not exist.")
 		{
-			environmentCreate := tt.NewCreateEnvironment(testName)
+			deviceConfigCreate := tt.NewCreateDevicesConfig(testName)
 
-			newEnvironment, err := newUseCase.CreateEnvironment(environmentCreate, uuid.NewString())
-			assert.Equal(t, webmodels.InformationEnvironment{}, newEnvironment)
+			newDeviceConfig, err := newUseCase.CreateDeviceConfig(deviceConfigCreate, uuid.NewString())
+			assert.Equal(t, webmodels.InformationDevicesConfig{}, newDeviceConfig)
 			assert.Error(t, mycErrors.ErrElementNotExist, err)
 		}
 
-		t.Logf("\tWhen a failed create environment when data environment is wrong.")
+		t.Logf("\tWhen a failed create device config when data environment is wrong.")
 		{
 			// Create a register user and validation.
 			email, _ := tt.UseCaseRegisterValidate(t, newUseCase, newStore, testName)
@@ -64,13 +65,13 @@ func TestUseCaseCreateEnvironment(t *testing.T) {
 			userDB, err := newStore.UserFindByEmail(email)
 			require.NoError(t, err)
 
-			environmentCreate := tt.NewCreateEnvironment(testName)
-			environmentCreate.Name = "name\000"
+			deviceConfigCreate := tt.NewCreateDevicesConfig(testName)
+			deviceConfigCreate.Name = "name\000"
 
 			var customError *mycDBErrors.PsqlError
 
-			newEnvironment, err := newUseCase.CreateEnvironment(environmentCreate, userDB.ID)
-			assert.Equal(t, webmodels.InformationEnvironment{}, newEnvironment)
+			newDeviceConfig, err := newUseCase.CreateDeviceConfig(deviceConfigCreate, userDB.ID)
+			assert.Equal(t, webmodels.InformationDevicesConfig{}, newDeviceConfig)
 			assert.Equal(t, true, errors.As(err, &customError))
 		}
 	}

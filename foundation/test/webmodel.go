@@ -56,3 +56,39 @@ func NewCreateEnvironment(testName string) webmodels.CreateEnvironment {
 
 	return *createEnvironment
 }
+
+// NewCreateDevicesConfig created new devices config model.
+func NewCreateDevicesConfig(testName string) webmodels.CreateDeviceConfig {
+	createdDevicesConfig := new(webmodels.CreateDeviceConfig)
+	createdDevicesConfig.Name = faker.Name().Name() + "_" + testName
+	createdDevicesConfig.Payload = "{\"id\": \"$SERIAL_NUMBER\",\"telemetry\":" +
+		"{\"PH_CON_TOT\": $PH_CON_TOT},\"deviceType\": \"DEVICE\":}"
+	createdDevicesConfig.TypeSend = "MQTT"
+
+	createdDevicesConfig.Vars = append(createdDevicesConfig.Vars,
+		&webmodels.DevicesConfigVars{Key: "testName", Var: testName})
+	createdDevicesConfig.Vars = append(createdDevicesConfig.Vars,
+		&webmodels.DevicesConfigVars{Key: "SERIAL_NUMBER", Var: faker.RandomString(randomise)})
+	createdDevicesConfig.Vars = append(createdDevicesConfig.Vars,
+		&webmodels.DevicesConfigVars{Key: "GATEWAY_TOKEN", Var: faker.RandomString(randomise)})
+
+	randomValuesFixed := make([]*webmodels.DevicesConfigRandomValues, 0)
+	randomValuesFixed = append(randomValuesFixed,
+		&webmodels.DevicesConfigRandomValues{TypeValue: "minValue", Value: "210"})
+	randomValuesFixed = append(randomValuesFixed,
+		&webmodels.DevicesConfigRandomValues{TypeValue: "maxValue", Value: "220"})
+
+	randomValuesAccumulated := make([]*webmodels.DevicesConfigRandomValues, 0)
+	randomValuesAccumulated = append(randomValuesAccumulated,
+		&webmodels.DevicesConfigRandomValues{TypeValue: "minValue", Value: "15"})
+	randomValuesAccumulated = append(randomValuesAccumulated,
+		&webmodels.DevicesConfigRandomValues{TypeValue: "maxValue", Value: "30"})
+
+	createdDevicesConfig.MetricsFixed = append(createdDevicesConfig.MetricsFixed,
+		&webmodels.DevicesConfigMetricsFixed{Metric: "Voltage", RandomValues: randomValuesFixed})
+
+	createdDevicesConfig.MetricsAccumulated = append(createdDevicesConfig.MetricsAccumulated,
+		&webmodels.DevicesConfigMetricsAccumulated{Metric: "PH_CON_TOT", RandomValues: randomValuesAccumulated})
+
+	return *createdDevicesConfig
+}

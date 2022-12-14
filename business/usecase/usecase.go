@@ -55,6 +55,12 @@ type Environment interface {
 		userID string) (webmodels.InformationEnvironment, error)
 }
 
+// DeviceConfig methods devices config use case.
+type DeviceConfig interface {
+	CreateDeviceConfig(createDevicesConfig webmodels.CreateDeviceConfig,
+		userID string) (webmodels.InformationDevicesConfig, error)
+}
+
 // Auth methods auth use case.
 type Auth interface {
 	Login(userLogin webmodels.LoginUser) (string, error)
