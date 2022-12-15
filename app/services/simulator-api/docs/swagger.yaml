@@ -20,6 +20,14 @@ definitions:
         example: OK
         type: string
     type: object
+  responses.SuccessDeviceConfig:
+    properties:
+      deviceConfig:
+        $ref: '#/definitions/webmodels.InformationDevicesConfig'
+      status:
+        example: OK
+        type: string
+    type: object
   responses.SuccessEnvironment:
     properties:
       environment:
@@ -84,6 +92,38 @@ definitions:
     required:
     - key
     - var
+    type: object
+  webmodels.InformationDevicesConfig:
+    properties:
+      id:
+        type: string
+      metricsAccumulated:
+        additionalProperties:
+          type: string
+        example:
+          key: value
+          key2: value2
+        type: object
+      metricsFixed:
+        additionalProperties:
+          type: string
+        example:
+          key: value
+          key2: value2
+        type: object
+      name:
+        type: string
+      payload:
+        type: string
+      typeSend:
+        type: string
+      vars:
+        additionalProperties:
+          type: string
+        example:
+          key: value
+          key2: value2
+        type: object
     type: object
   webmodels.InformationEnvironment:
     properties:
@@ -276,6 +316,45 @@ paths:
       summary: Logout user EndPoint
       tags:
       - Auth
+  /api/v1/devices-config:
+    post:
+      consumes:
+      - application/json
+      description: Create a new device config in the system.
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: DeviceConfigCreate
+        in: body
+        name: DeviceConfigCreate
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.InformationDevicesConfig'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.SuccessDeviceConfig'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      summary: Create device config EndPoint
+      tags:
+      - Device-Config
   /api/v1/environments:
     post:
       consumes:

@@ -16,12 +16,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const environmentURI = "/api/v1/environments"
+const deviceConfigURI = "/api/v1/devices-config"
 
-func TestEnvironmentCreate(t *testing.T) {
+func TestDeviceConfigCreate(t *testing.T) {
 	t.Parallel()
 
-	testName := "handler-environment-create"
+	testName := "handler-device-config-create"
 
 	// Setup echo.
 	app := echo.New()
@@ -37,7 +37,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	// Initializing handles.
 	handlers.Handlers(app, handlerConfig)
 
-	t.Log("Given the need to create environment endpoint.")
+	t.Log("Given the need to create device-config endpoint.")
 	{
 		t.Logf("\tWhen we send the body fields with the unwanted format.")
 		{
@@ -51,7 +51,7 @@ func TestEnvironmentCreate(t *testing.T) {
 
 			// all fields empty.
 			_, rec := tt.MakeRequest(t, tt.NewRequestTest(
-				app, http.MethodPost, environmentURI, webmodels.CreateEnvironment{}, headers, nil))
+				app, http.MethodPost, deviceConfigURI, webmodels.CreateDeviceConfig{}, headers, nil))
 
 			validator := new(responses.Validator)
 
@@ -72,7 +72,7 @@ func TestEnvironmentCreate(t *testing.T) {
 				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
 			}
 
-			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, environmentURI, nil, headers, nil))
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, deviceConfigURI, nil, headers, nil))
 
 			validator := new(responses.Validator)
 
@@ -83,7 +83,7 @@ func TestEnvironmentCreate(t *testing.T) {
 			assert.Equal(t, "ERROR", validator.Status)
 		}
 
-		t.Logf("\tWhen a correct create environment.")
+		t.Logf("\tWhen a correct create device config.")
 		{
 			email, password := tt.RegisterUser(t, app, testName)
 			tt.ValidationUser(t, app, newStore, email)
@@ -93,22 +93,22 @@ func TestEnvironmentCreate(t *testing.T) {
 				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
 			}
 
-			environmentCreate := tt.NewCreateEnvironment(testName)
+			deviceConfigCreate := tt.NewCreateDevicesConfig(testName)
 
-			// Created environment.
-			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, environmentURI, environmentCreate, headers, nil))
+			// Created device config.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, deviceConfigURI, deviceConfigCreate, headers, nil))
 
-			successEnvironment := new(responses.SuccessEnvironment)
+			successDeviceConfig := new(responses.SuccessDeviceConfig)
 
-			err := json.Unmarshal(rec.Body.Bytes(), &successEnvironment)
+			err := json.Unmarshal(rec.Body.Bytes(), &successDeviceConfig)
 			require.NoError(t, err)
 
 			assert.Equal(t, http.StatusCreated, rec.Code)
-			assert.Equal(t, "OK", successEnvironment.Status)
-			assert.Equal(t, environmentCreate.Name, successEnvironment.Environment.Name)
+			assert.Equal(t, "OK", successDeviceConfig.Status)
+			assert.Equal(t, deviceConfigCreate.Name, successDeviceConfig.DeviceConfig.Name)
 		}
 
-		t.Logf("\tWhen a faild create environment when data is wrong format.")
+		t.Logf("\tWhen a faild create device config when data is wrong format.")
 		{
 			email, password := tt.RegisterUser(t, app, testName)
 			tt.ValidationUser(t, app, newStore, email)
@@ -118,11 +118,11 @@ func TestEnvironmentCreate(t *testing.T) {
 				"Authorization": "Bearer " + tt.AuthLogin(t, app, email, password),
 			}
 
-			environmentCreate := tt.NewCreateEnvironment(testName)
-			environmentCreate.Name = "name\000"
+			deviceConfigCreate := tt.NewCreateDevicesConfig(testName)
+			deviceConfigCreate.Name = "name\000"
 
-			// Created environment.
-			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, environmentURI, environmentCreate, headers, nil))
+			// Created device config.
+			_, rec := tt.MakeRequest(t, tt.NewRequestTest(app, http.MethodPost, deviceConfigURI, deviceConfigCreate, headers, nil))
 
 			successFailed := new(responses.Failed)
 

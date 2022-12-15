@@ -137,6 +137,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/devices-config": {
+            "post": {
+                "description": "Create a new device config in the system.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Device-Config"
+                ],
+                "summary": "Create device config EndPoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "DeviceConfigCreate",
+                        "name": "DeviceConfigCreate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webmodels.InformationDevicesConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessDeviceConfig"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/environments": {
             "post": {
                 "description": "Create a new environment in the system.",
@@ -497,6 +556,18 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.SuccessDeviceConfig": {
+            "type": "object",
+            "properties": {
+                "deviceConfig": {
+                    "$ref": "#/definitions/webmodels.InformationDevicesConfig"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
         "responses.SuccessEnvironment": {
             "type": "object",
             "properties": {
@@ -591,6 +662,53 @@ const docTemplate = `{
                 },
                 "var": {
                     "type": "string"
+                }
+            }
+        },
+        "webmodels.InformationDevicesConfig": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "metricsAccumulated": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "key": "value",
+                        "key2": "value2"
+                    }
+                },
+                "metricsFixed": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "key": "value",
+                        "key2": "value2"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "typeSend": {
+                    "type": "string"
+                },
+                "vars": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "key": "value",
+                        "key2": "value2"
+                    }
                 }
             }
         },

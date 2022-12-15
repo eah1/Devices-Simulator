@@ -19,48 +19,48 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type Environment struct {
+type DeviceConfig struct {
 	cfg     handler.HandlerConfig
 	usecase usecase.UseCase
 }
 
-// NewEnvironment constructs a handler Environment.
-func NewEnvironment(cfg handler.HandlerConfig) Environment {
-	return Environment{
+// NewDeviceConfig constructs a handler DeviceConfig.
+func NewDeviceConfig(cfg handler.HandlerConfig) DeviceConfig {
+	return DeviceConfig{
 		cfg: cfg,
 		usecase: usecase.NewUseCase(
 			cfg.Log, cfg.Config, store.NewStore(cfg.Log, cfg.DB), cfg.ClientQueue, cfg.EmailSender),
 	}
 }
 
-// NewEnvironmentServiceGroup create a group environment handlers.
-func NewEnvironmentServiceGroup(app *echo.Group, prefix string, handlers Environment) {
-	environment := app.Group(prefix)
+// NewDeviceConfigServiceGroup create a group device config handlers.
+func NewDeviceConfigServiceGroup(app *echo.Group, prefix string, handlers DeviceConfig) {
+	deviceConfig := app.Group(prefix)
 
 	handlers.cfg.AuthorizationUser = common.AuthorizationUser(handlers.usecase.GetCore(), handlers.cfg.Log)
 
-	environment.POST("", handlers.Create, handlers.cfg.JWTConfig, handlers.cfg.AuthorizationUser)
+	deviceConfig.POST("", handlers.Create, handlers.cfg.JWTConfig, handlers.cfg.AuthorizationUser)
 }
 
-// Create environment create EndPoint.
-// @Summary Create environment EndPoint
-// @Tags Environments
-// @Description Create a new environment in the system.
+// Create device config create EndPoint.
+// @Summary Create device config EndPoint
+// @Tags Device-Config
+// @Description Create a new device config in the system.
 // @Param Authorization header string true "Authentication header"
-// @Param EnvironmentCreate body webmodels.CreateEnvironment true "EnvironmentCreate"
+// @Param DeviceConfigCreate body webmodels.InformationDevicesConfig true "DeviceConfigCreate"
 // @Accept json
 // @Produce json
-// @Success 201 {object} responses.SuccessEnvironment
+// @Success 201 {object} responses.SuccessDeviceConfig
 // @Failure 400 {object} responses.Validator
 // @Failure 401 {object} responses.Failed
 // @Failure 500 {object} responses.Failed
-// @Router /api/v1/environments [post].
-func (h Environment) Create(ctx echo.Context) error {
+// @Router /api/v1/devices-config [post].
+func (h DeviceConfig) Create(ctx echo.Context) error {
 	user, _ := ctx.Get("user").(models.User)
 
-	createEnvironment := new(webmodels.CreateEnvironment)
+	createDeviceConfig := new(webmodels.CreateDeviceConfig)
 
-	if err := ctx.Bind(createEnvironment); err != nil {
+	if err := ctx.Bind(createDeviceConfig); err != nil {
 		if strings.Contains(err.Error(), "validator:") {
 			return fmt.Errorf("%w", ctx.JSON(http.StatusBadRequest, responses.Validator{
 				Status: "ERROR", Details: strings.Split(err.Error()[10:], ","),
@@ -70,12 +70,12 @@ func (h Environment) Create(ctx echo.Context) error {
 		return fmt.Errorf("%w", ctx.JSON(errors.ErrorHandlingEnvironmentCreate(err, h.cfg.Log)))
 	}
 
-	environmentInfo, err := h.usecase.CreateEnvironment(*createEnvironment, user.ID)
+	deviceConfigInfo, err := h.usecase.CreateDeviceConfig(*createDeviceConfig, user.ID)
 	if err != nil {
-		return fmt.Errorf("traceid:%s  request.environment.Create: %w", ctx.Request().Header.Get(echo.HeaderXRequestID),
+		return fmt.Errorf("traceid:%s  request.device_config.Create: %w", ctx.Request().Header.Get(echo.HeaderXRequestID),
 			ctx.JSON(errors.ErrorHandlingEnvironmentCreate(err, h.cfg.Log)))
 	}
 
 	return fmt.Errorf("%w", ctx.JSON(http.StatusCreated,
-		responses.SuccessEnvironment{Status: "OK", Environment: environmentInfo}))
+		responses.SuccessDeviceConfig{Status: "OK", DeviceConfig: deviceConfigInfo}))
 }
