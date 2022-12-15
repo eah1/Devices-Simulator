@@ -16,6 +16,7 @@ type Core struct {
 	Auth           AuthCore
 	Authentication AuthenticationCore
 	Environment    EnvironmentCore
+	DeviceConfig   DeviceConfigCore
 }
 
 // NewCore constructs a core group.
@@ -26,6 +27,7 @@ func NewCore(log *zap.SugaredLogger, config config.Config, store store.Store, em
 		Auth:           NewAuthCore(log, config, nil),
 		Authentication: NewAuthenticationCore(log, config, store, nil),
 		Environment:    NewEnvironmentCore(log, config, store, nil),
+		DeviceConfig:   NewDeviceConfigCore(log, config, store, nil),
 	}
 
 	return Core{
@@ -34,5 +36,6 @@ func NewCore(log *zap.SugaredLogger, config config.Config, store store.Store, em
 		Auth:           NewAuthCore(log, config, core),
 		Authentication: NewAuthenticationCore(log, config, store, core),
 		Environment:    NewEnvironmentCore(log, config, store, core),
+		DeviceConfig:   NewDeviceConfigCore(log, config, store, core),
 	}
 }

@@ -49,7 +49,7 @@ func TestAuthenticationCreate(t *testing.T) {
 
 		t.Logf("\tWhen creating authentication with invalid userId.")
 		{
-			authentication := tt.NewAuthentication(testName, uuid.New().String())
+			authentication := tt.NewAuthentication(testName, uuid.NewString())
 			assert.Error(t, newStore.AuthenticationCreate(authentication))
 		}
 	}
