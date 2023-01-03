@@ -1,7 +1,10 @@
 // Package models contains structs of the model application.
 package models
 
-import "time"
+import (
+	"device-simulator/business/web/webmodels"
+	"time"
+)
 
 // Device represents the structure we need for moving data.
 type Device struct {
@@ -16,4 +19,23 @@ type Device struct {
 
 func (*Device) TableName() string {
 	return "devices"
+}
+
+// CreateDeviceWebToDevice convert struct web model webmodels.CreateDevice to Device model.
+func CreateDeviceWebToDevice(createDevice webmodels.CreateDevice) Device {
+	device := new(Device)
+	device.Name = createDevice.Name
+	device.EnvironmentID = createDevice.EnvironmentID
+	device.DeviceConfigID = createDevice.DeviceConfigID
+
+	return *device
+}
+
+// DeviceModelToWeb convert struct model Device to webmodels.InformationDevice.
+func DeviceModelToWeb(device Device) webmodels.InformationDevice {
+	deviceInfo := new(webmodels.InformationDevice)
+	deviceInfo.ID = device.ID
+	deviceInfo.Name = device.Name
+
+	return *deviceInfo
 }

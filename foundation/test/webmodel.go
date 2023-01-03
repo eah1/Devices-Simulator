@@ -92,3 +92,13 @@ func NewCreateDevicesConfig(testName string) webmodels.CreateDeviceConfig {
 
 	return *createdDevicesConfig
 }
+
+// NewCreateDevice created new device model.
+func NewCreateDevice(testName, environmentID, deviceConfigID string) webmodels.CreateDevice {
+	createDevice := new(webmodels.CreateDevice)
+	createDevice.Name = faker.Name().Name() + "_" + testName
+	createDevice.EnvironmentID = environmentID
+	createDevice.DeviceConfigID = deviceConfigID
+
+	return *createDevice
+}
