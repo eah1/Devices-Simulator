@@ -53,6 +53,8 @@ func NewCreateEnvironment(testName string) webmodels.CreateEnvironment {
 		&webmodels.EnvironmentVars{Key: "URI", Var: faker.Internet().Url()})
 	createEnvironment.Vars = append(createEnvironment.Vars,
 		&webmodels.EnvironmentVars{Key: "SECRET_KEY", Var: faker.RandomString(randomise)})
+	createEnvironment.Vars = append(createEnvironment.Vars,
+		&webmodels.EnvironmentVars{Key: "testName", Var: testName})
 
 	return *createEnvironment
 }

@@ -137,6 +137,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/devices": {
+            "post": {
+                "description": "Create a new device in the system.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Device"
+                ],
+                "summary": "Create device EndPoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authentication header",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "DeviceCreate",
+                        "name": "DeviceCreate",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/webmodels.CreateDevice"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/responses.SuccessDevice"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Validator"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Failed"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/devices-config": {
             "post": {
                 "description": "Create a new device config in the system.",
@@ -164,7 +223,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/webmodels.InformationDevicesConfig"
+                            "$ref": "#/definitions/webmodels.CreateDeviceConfig"
                         }
                     }
                 ],
@@ -556,6 +615,18 @@ const docTemplate = `{
                 }
             }
         },
+        "responses.SuccessDevice": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "$ref": "#/definitions/webmodels.InformationDevice"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
         "responses.SuccessDeviceConfig": {
             "type": "object",
             "properties": {
@@ -631,6 +702,71 @@ const docTemplate = `{
                 }
             }
         },
+        "webmodels.CreateDevice": {
+            "type": "object",
+            "required": [
+                "deviceConfigId",
+                "environmentId",
+                "name"
+            ],
+            "properties": {
+                "deviceConfigId": {
+                    "type": "string"
+                },
+                "environmentId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "webmodels.CreateDeviceConfig": {
+            "type": "object",
+            "required": [
+                "metricsAccumulated",
+                "metricsFixed",
+                "name",
+                "payload",
+                "typeSend",
+                "vars"
+            ],
+            "properties": {
+                "metricsAccumulated": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/webmodels.DevicesConfigMetricsAccumulated"
+                    }
+                },
+                "metricsFixed": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/webmodels.DevicesConfigMetricsFixed"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "typeSend": {
+                    "type": "string",
+                    "enum": [
+                        "MQTT"
+                    ]
+                },
+                "vars": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/webmodels.DevicesConfigVars"
+                    }
+                }
+            }
+        },
         "webmodels.CreateEnvironment": {
             "type": "object",
             "required": [
@@ -650,6 +786,74 @@ const docTemplate = `{
                 }
             }
         },
+        "webmodels.DevicesConfigMetricsAccumulated": {
+            "type": "object",
+            "required": [
+                "metric",
+                "randomValues"
+            ],
+            "properties": {
+                "metric": {
+                    "type": "string"
+                },
+                "randomValues": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/webmodels.DevicesConfigRandomValues"
+                    }
+                }
+            }
+        },
+        "webmodels.DevicesConfigMetricsFixed": {
+            "type": "object",
+            "required": [
+                "metric",
+                "randomValues"
+            ],
+            "properties": {
+                "metric": {
+                    "type": "string"
+                },
+                "randomValues": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/webmodels.DevicesConfigRandomValues"
+                    }
+                }
+            }
+        },
+        "webmodels.DevicesConfigRandomValues": {
+            "type": "object",
+            "required": [
+                "typeValue",
+                "value"
+            ],
+            "properties": {
+                "typeValue": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "webmodels.DevicesConfigVars": {
+            "type": "object",
+            "required": [
+                "key",
+                "var"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "var": {
+                    "type": "string"
+                }
+            }
+        },
         "webmodels.EnvironmentVars": {
             "type": "object",
             "required": [
@@ -661,6 +865,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "var": {
+                    "type": "string"
+                }
+            }
+        },
+        "webmodels.InformationDevice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
