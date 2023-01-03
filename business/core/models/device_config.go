@@ -1,3 +1,4 @@
+// Package models contains structs of the model application.
 package models
 
 import (

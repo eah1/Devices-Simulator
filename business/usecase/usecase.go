@@ -61,6 +61,11 @@ type DeviceConfig interface {
 		userID string) (webmodels.InformationDevicesConfig, error)
 }
 
+// Device methods devices use case.
+type Device interface {
+	CreateDevice(createDevice webmodels.CreateDevice, userID string) (webmodels.InformationDevice, error)
+}
+
 // Auth methods auth use case.
 type Auth interface {
 	Login(userLogin webmodels.LoginUser) (string, error)

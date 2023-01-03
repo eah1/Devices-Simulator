@@ -53,6 +53,8 @@ func NewCreateEnvironment(testName string) webmodels.CreateEnvironment {
 		&webmodels.EnvironmentVars{Key: "URI", Var: faker.Internet().Url()})
 	createEnvironment.Vars = append(createEnvironment.Vars,
 		&webmodels.EnvironmentVars{Key: "SECRET_KEY", Var: faker.RandomString(randomise)})
+	createEnvironment.Vars = append(createEnvironment.Vars,
+		&webmodels.EnvironmentVars{Key: "testName", Var: testName})
 
 	return *createEnvironment
 }
@@ -91,4 +93,14 @@ func NewCreateDevicesConfig(testName string) webmodels.CreateDeviceConfig {
 		&webmodels.DevicesConfigMetricsAccumulated{Metric: "PH_CON_TOT", RandomValues: randomValuesAccumulated})
 
 	return *createdDevicesConfig
+}
+
+// NewCreateDevice created new device model.
+func NewCreateDevice(testName, environmentID, deviceConfigID string) webmodels.CreateDevice {
+	createDevice := new(webmodels.CreateDevice)
+	createDevice.Name = faker.Name().Name() + "_" + testName
+	createDevice.EnvironmentID = environmentID
+	createDevice.DeviceConfigID = deviceConfigID
+
+	return *createDevice
 }

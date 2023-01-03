@@ -20,6 +20,14 @@ definitions:
         example: OK
         type: string
     type: object
+  responses.SuccessDevice:
+    properties:
+      device:
+        $ref: '#/definitions/webmodels.InformationDevice'
+      status:
+        example: OK
+        type: string
+    type: object
   responses.SuccessDeviceConfig:
     properties:
       deviceConfig:
@@ -70,6 +78,52 @@ definitions:
         example: ERROR
         type: string
     type: object
+  webmodels.CreateDevice:
+    properties:
+      deviceConfigId:
+        type: string
+      environmentId:
+        type: string
+      name:
+        type: string
+    required:
+    - deviceConfigId
+    - environmentId
+    - name
+    type: object
+  webmodels.CreateDeviceConfig:
+    properties:
+      metricsAccumulated:
+        items:
+          $ref: '#/definitions/webmodels.DevicesConfigMetricsAccumulated'
+        minItems: 1
+        type: array
+      metricsFixed:
+        items:
+          $ref: '#/definitions/webmodels.DevicesConfigMetricsFixed'
+        minItems: 1
+        type: array
+      name:
+        type: string
+      payload:
+        type: string
+      typeSend:
+        enum:
+        - MQTT
+        type: string
+      vars:
+        items:
+          $ref: '#/definitions/webmodels.DevicesConfigVars'
+        minItems: 1
+        type: array
+    required:
+    - metricsAccumulated
+    - metricsFixed
+    - name
+    - payload
+    - typeSend
+    - vars
+    type: object
   webmodels.CreateEnvironment:
     properties:
       name:
@@ -83,6 +137,52 @@ definitions:
     - name
     - vars
     type: object
+  webmodels.DevicesConfigMetricsAccumulated:
+    properties:
+      metric:
+        type: string
+      randomValues:
+        items:
+          $ref: '#/definitions/webmodels.DevicesConfigRandomValues'
+        minItems: 1
+        type: array
+    required:
+    - metric
+    - randomValues
+    type: object
+  webmodels.DevicesConfigMetricsFixed:
+    properties:
+      metric:
+        type: string
+      randomValues:
+        items:
+          $ref: '#/definitions/webmodels.DevicesConfigRandomValues'
+        minItems: 1
+        type: array
+    required:
+    - metric
+    - randomValues
+    type: object
+  webmodels.DevicesConfigRandomValues:
+    properties:
+      typeValue:
+        type: string
+      value:
+        type: string
+    required:
+    - typeValue
+    - value
+    type: object
+  webmodels.DevicesConfigVars:
+    properties:
+      key:
+        type: string
+      var:
+        type: string
+    required:
+    - key
+    - var
+    type: object
   webmodels.EnvironmentVars:
     properties:
       key:
@@ -92,6 +192,13 @@ definitions:
     required:
     - key
     - var
+    type: object
+  webmodels.InformationDevice:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
     type: object
   webmodels.InformationDevicesConfig:
     properties:
@@ -316,6 +423,45 @@ paths:
       summary: Logout user EndPoint
       tags:
       - Auth
+  /api/v1/devices:
+    post:
+      consumes:
+      - application/json
+      description: Create a new device in the system.
+      parameters:
+      - description: Authentication header
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: DeviceCreate
+        in: body
+        name: DeviceCreate
+        required: true
+        schema:
+          $ref: '#/definitions/webmodels.CreateDevice'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.SuccessDevice'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Validator'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Failed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Failed'
+      summary: Create device EndPoint
+      tags:
+      - Device
   /api/v1/devices-config:
     post:
       consumes:
@@ -332,7 +478,7 @@ paths:
         name: DeviceConfigCreate
         required: true
         schema:
-          $ref: '#/definitions/webmodels.InformationDevicesConfig'
+          $ref: '#/definitions/webmodels.CreateDeviceConfig'
       produces:
       - application/json
       responses:

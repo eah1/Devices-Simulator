@@ -99,3 +99,15 @@ func NewDeviceConfig(testName, userID string) models.DeviceConfig {
 
 	return *deviceConfig
 }
+
+// NewDevice created new device model.
+func NewDevice(testName, userID, environmentID, deviceConfigID string) models.Device {
+	device := new(models.Device)
+	device.ID = uuid.NewString()
+	device.Name = testName + "_" + faker.Name().Name()
+	device.UserID = userID
+	device.EnvironmentID = environmentID
+	device.DeviceConfigID = deviceConfigID
+
+	return *device
+}

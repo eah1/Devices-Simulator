@@ -15,4 +15,5 @@ func CreateGroup(app *echo.Group, cfg handler.HandlerConfig) {
 	NewAuthServiceGroup(v1, "/auth", NewAuth(cfg))
 	NewEnvironmentServiceGroup(v1, "/environments", NewEnvironment(cfg))
 	NewDeviceConfigServiceGroup(v1, "/devices-config", NewDeviceConfig(cfg))
+	NewDeviceServiceGroup(v1, "/devices", NewDevice(cfg))
 }

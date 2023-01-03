@@ -55,3 +55,17 @@ func DeviceConfigCreate(t *testing.T, store store.Store, testName, userID string
 
 	return deviceConfig
 }
+
+// DeviceCreate create a device in database.
+func DeviceCreate(
+	t *testing.T, store store.Store, testName, userID, environmentID, deviceConfigID string,
+) models.Device {
+	t.Helper()
+
+	device := NewDevice(testName, userID, environmentID, deviceConfigID)
+
+	err := store.DeviceCreate(device)
+	require.NoError(t, err)
+
+	return device
+}
